@@ -1,9 +1,14 @@
 #ifndef HARDWAREPROFILE_H_INCLUDED
 #define HARDWAREPROFILE_H_INCLUDED
 
+#include <xc.h>
+#include "system.h"
 
 #define OUTPUT_GPIO 0
 #define INPUT_GPIO 1
+
+#define TRIS_OUTPUT 0
+#define TRIS_INPUT  1
 
 
 #define RS485_DIR_TRIS TRISCbits.TRISC6
@@ -63,6 +68,7 @@
 #define PWM_2_0_10_TRIS    TRISCbits.TRISC0
 #define PWM_2_0_10_LAT     LATCbits.LATC0
 
+
 #define I2C_SCL_TRIS TRISBbits.TRISB2
 #define I2C_SCL_LAT LATBbits.LATB2
 #define I2C_SDA_TRIS TRISBbits.TRISB3
@@ -70,5 +76,17 @@
 #define I2C_SDA_PORT PORTBbits.RB3
 #define I2C_WP_TRIS TRISCbits.TRISC2
 #define I2C_WP_LAT TRISCbits.LATC2
+
+#define I2C_CLK I2C_SCL_LAT
+#define I2C_CLK_TRIS I2C_SCL_TRIS
+#define I2C_DATA_OUT I2C_SDA_LAT
+#define I2C_DATA_TRIS I2C_SDA_TRIS
+#define I2C_DATA_IN I2C_SDA_PORT
+
+#define UART_RX_TRIS TRISCbits.TRISC9
+#define UART_TX_TRIS TRISCbits.TRISC8
+
+#define INT1_TRIS TRISBbits.TRISB7
+#define INT1_PORT PORTBbits.RB7
 
 #endif
