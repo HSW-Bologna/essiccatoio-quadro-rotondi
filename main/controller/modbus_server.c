@@ -5,18 +5,50 @@
 #include "peripherals/digout.h"
 #include "hardwareprofile.h"
 #include "gettoniera.h"
+#include "digin.h"
 
 #define SLAVE_ADDRESS 2
 
 static ModbusSlave slave;
-static uint8_t coils[1]={0};
 
-#define REG_COUNT_GETT1 0
-#define REG_COUNT_GETT2 1
-#define REG_COUNT_GETT3 2
-#define REG_COUNT_GETT4 3
-#define REG_COUNT_GETT5 4
 
+enum {
+    REG_GETT1 = 0,
+    REG_GETT2,
+    REG_GETT3,
+    REG_GETT4,
+    REG_GETT5,
+    NUM_INPUT_REGISTERS
+};
+
+
+enum {
+    DIN_IN0 = 0,
+    DIN_IN1,
+    DIN_IN2,
+    DIN_IN3,
+    DIN_IN4,
+    DIN_IN5,
+    DIN_IN6,
+    DIN_IN7,
+    NUM_DISCRETE_INPUTS
+};
+
+
+enum {
+    COIL_RELE1 = 0,
+    COIL_RELE2,
+    COIL_RELE3,
+    COIL_RELE4,
+    COIL_RELE5,
+    COIL_RELE6,
+    COIL_RELE7,
+    COIL_RELE8,
+    COIL_RELE9,
+    NUM_COILS,
+};
+
+    
 ModbusError slaveExceptionCallback(
     const ModbusSlave *slave,
     uint8_t function,
@@ -69,6 +101,9 @@ ModbusError slaveExceptionCallback(
     uint8_t function,
     ModbusExceptionCode code)
 {
+    Nop();
+    Nop();
+    Nop();
     // Always return MODBUS_OK
     return MODBUS_OK;
 }
@@ -78,39 +113,86 @@ ModbusError myRegisterCallback(
     const ModbusRegisterCallbackArgs *args,
     ModbusRegisterCallbackResult *result)
 {
+    digout_t coil2digout[NUM_COILS] = {
+        DIGOUT_OUT1,
+        DIGOUT_OUT2,
+        DIGOUT_OUT3,
+        DIGOUT_OUT4,
+        DIGOUT_OUT5,
+        DIGOUT_OUT6,
+        DIGOUT_OUT7,
+        DIGOUT_OUT8,
+        DIGOUT_OUT9,
+    };
+    
+    digin_t din2digin[NUM_DISCRETE_INPUTS] = {
+        DIGIN_IN0,
+        DIGIN_IN1,
+        DIGIN_IN2,
+        DIGIN_IN3,
+        DIGIN_IN4,
+        DIGIN_IN5,
+        DIGIN_IN6,
+        DIGIN_IN7,
+    };
+    
     switch (args->query)
     {
-        
         case MODBUS_REGQ_R_CHECK:
         case MODBUS_REGQ_W_CHECK:
-            
-            result->exceptionCode = args->index < 5 ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+            switch (args->type) {
+                case MODBUS_HOLDING_REGISTER:
+                    result->exceptionCode = MODBUS_EXCEP_ILLEGAL_FUNCTION;
+                    break;
+                
+                case MODBUS_INPUT_REGISTER:          
+                    result->exceptionCode = args->index < NUM_INPUT_REGISTERS ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+                    break;
+                    
+                case MODBUS_COIL:
+                    result->exceptionCode = args->index < NUM_COILS ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+                    break;
+                    
+                case MODBUS_DISCRETE_INPUT:
+                    if (args->query == MODBUS_REGQ_W_CHECK) {
+                        result->exceptionCode = MODBUS_EXCEP_ILLEGAL_FUNCTION;
+                    } else {
+                        result->exceptionCode = args->index < NUM_DISCRETE_INPUTS ? MODBUS_EXCEP_NONE : MODBUS_EXCEP_ILLEGAL_ADDRESS;
+                    }
+                    break;
+            }
             break;
+
             
         // Read register        
         case MODBUS_REGQ_R:
             switch (args->type)
             {
-                case MODBUS_COIL:
-                    result->value = modbusMaskRead(coils, args->index);
+                case MODBUS_DISCRETE_INPUT:
+                    result->value = digin_get(din2digin[args->index]);
                     break;
+                
+                case MODBUS_COIL:
+                    // TODO: read coils
+                    break;
+                    
                 case MODBUS_INPUT_REGISTER:
                     switch (args->index)
                     {
-                        case REG_COUNT_GETT1:
-                            result->value = gettoniera_get_count(REG_COUNT_GETT1);
+                        case REG_GETT1:
+                            result->value = gettoniera_get_count(REG_GETT1);
                             break;
-                        case REG_COUNT_GETT2:
-                            result->value = gettoniera_get_count(REG_COUNT_GETT2);
+                        case REG_GETT2:
+                            result->value = gettoniera_get_count(REG_GETT2);
                             break;
-                        case REG_COUNT_GETT3:
-                            result->value = gettoniera_get_count(REG_COUNT_GETT3);
+                        case REG_GETT3:
+                            result->value = gettoniera_get_count(REG_GETT3);
                             break;
-                        case REG_COUNT_GETT4:
-                            result->value = gettoniera_get_count(REG_COUNT_GETT4);
+                        case REG_GETT4:
+                            result->value = gettoniera_get_count(REG_GETT4);
                             break;
-                        case REG_COUNT_GETT5:
-                            result->value = gettoniera_get_count(REG_COUNT_GETT5);
+                        case REG_GETT5:
+                            result->value = gettoniera_get_count(REG_GETT5);
                             break;
                         default:
                             break;
@@ -125,8 +207,12 @@ ModbusError myRegisterCallback(
         case MODBUS_REGQ_W:
             switch (args->type)
             {
-                case MODBUS_COIL:             modbusMaskWrite(coils, args->index, args->value); break;
-                default:                      break;
+                case MODBUS_COIL:
+                    digout_update(coil2digout[args->index], args->value);
+                    break;
+                    
+                default:
+                    break;
             }
             break;
           

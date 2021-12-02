@@ -13,6 +13,7 @@
 #include "controller/controller.h"
 #include "controller/modbus_server.h"
 #include "gettoniera.h"
+#include "i2c_ports/PIC/i2c_bitbang.h"
 
 static model_t model;
 
@@ -22,18 +23,20 @@ int main(void) {
     unsigned long t = 0;
   
     system_init();
+    i2c_bitbang_init(3);
     timer_init();
     pwoff_init();
     digin_init();
     digout_init();
     pwm_init();
-    i2c_bitbang_init(0);
     uart_init();
     gettoniera_init();
     modbus_server_init();
     
     model_init(&model);
     controller_init(&model);
+    int x = 0;
+    
    
     for(;;) {
         ClrWdt();
@@ -42,7 +45,7 @@ int main(void) {
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;
             heartbit_ts = get_millis();
-            
+            x = !x;
         }
         if (is_expired(t, get_millis(), 10UL)) {
             //gettoniera_take_insert();
