@@ -76,6 +76,34 @@
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
+        <logicalFolder name="SPI" displayName="SPI" projectFiles="true">
+          <logicalFolder name="spi_common" displayName="spi_common" projectFiles="true">
+            <itemPath>components/SPI/spi_common/spi_common.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="spi_devices" displayName="spi_devices" projectFiles="true">
+            <logicalFolder name="adc" displayName="adc" projectFiles="true">
+              <logicalFolder name="MCP3202" displayName="MCP3202" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/adc/MCP3202/mcp3202.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="io" displayName="io" projectFiles="true">
+              <logicalFolder name="MCP23S08" displayName="MCP23S08" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/io/MCP23S08/mcp23s08.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="MCP23x17" displayName="MCP23x17" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/io/MCP23x17/mcp23x17.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="spi_ports" displayName="spi_ports" projectFiles="true">
+            <logicalFolder name="dummy" displayName="dummy" projectFiles="true">
+              <itemPath>components/SPI/spi_ports/dummy/dummy_spi_port.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="esp-idf" displayName="esp-idf" projectFiles="true">
+              <itemPath>components/SPI/spi_ports/esp-idf/esp_idf_spi_port.h</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
       </logicalFolder>
       <logicalFolder name="main" displayName="main" projectFiles="true">
         <logicalFolder name="config" displayName="config" projectFiles="true">
@@ -98,6 +126,12 @@
           <itemPath>main/peripherals/uart_driver.h</itemPath>
           <itemPath>main/peripherals/gettoniera.h</itemPath>
           <itemPath>main/peripherals/pwoff.h</itemPath>
+          <itemPath>main/peripherals/spi.h</itemPath>
+          <itemPath>main/peripherals/spi_devices.h</itemPath>
+          <itemPath>main/peripherals/temperature.h</itemPath>
+          <itemPath>main/peripherals/pressostato.h</itemPath>
+          <itemPath>main/peripherals/sht3.h</itemPath>
+          <itemPath>main/peripherals/led.h</itemPath>
         </logicalFolder>
       </logicalFolder>
     </logicalFolder>
@@ -152,6 +186,34 @@
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
+        <logicalFolder name="SPI" displayName="SPI" projectFiles="true">
+          <logicalFolder name="spi_common" displayName="spi_common" projectFiles="true">
+            <itemPath>components/SPI/spi_common/spi_common.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="spi_devices" displayName="spi_devices" projectFiles="true">
+            <logicalFolder name="adc" displayName="adc" projectFiles="true">
+              <logicalFolder name="MCP3202" displayName="MCP3202" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/adc/MCP3202/mcp3202.c</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="io" displayName="io" projectFiles="true">
+              <logicalFolder name="MCP23S08" displayName="MCP23S08" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/io/MCP23S08/mcp23s08.c</itemPath>
+              </logicalFolder>
+              <logicalFolder name="MCP23x17" displayName="MCP23x17" projectFiles="true">
+                <itemPath>components/SPI/spi_devices/io/MCP23x17/mcp23x17.c</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="spi_ports" displayName="spi_ports" projectFiles="true">
+            <logicalFolder name="dummy" displayName="dummy" projectFiles="true">
+              <itemPath>components/SPI/spi_ports/dummy/dummy_spi_port.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="esp-idf" displayName="esp-idf" projectFiles="true">
+              <itemPath>components/SPI/spi_ports/esp-idf/esp_idf_spi_port.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
         <itemPath>components/lightmodbus-impl.c</itemPath>
       </logicalFolder>
       <logicalFolder name="main" displayName="main" projectFiles="true">
@@ -172,6 +234,12 @@
           <itemPath>main/peripherals/uart_driver.c</itemPath>
           <itemPath>main/peripherals/gettoniera.c</itemPath>
           <itemPath>main/peripherals/pwoff.c</itemPath>
+          <itemPath>main/spi.c</itemPath>
+          <itemPath>main/peripherals/spi_devices.c</itemPath>
+          <itemPath>main/peripherals/temperature.c</itemPath>
+          <itemPath>main/peripherals/pressostato.c</itemPath>
+          <itemPath>main/peripherals/sht3.c</itemPath>
+          <itemPath>main/peripherals/led.c</itemPath>
         </logicalFolder>
         <itemPath>main/main.c</itemPath>
       </logicalFolder>
@@ -197,7 +265,7 @@
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.36</languageToolchainVersion>
-        <platform>2</platform>
+        <platform>3</platform>
       </toolsSet>
       <packs>
         <pack name="PIC24F-GA-GB_DFP" vendor="Microchip" version="1.4.141"/>
@@ -245,7 +313,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value="components/gel;main;components\I2C;main/peripherals;main/controller;main/config;components\liblightmodbus\include"/>
+                  value="components/gel;main;components\I2C;main/peripherals;main/controller;main/config;components\liblightmodbus\include;components\SPI"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
@@ -430,79 +498,38 @@
         <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </ICD3PlatformTool>
-      <Tool>
-        <property key="ADC 1" value="true"/>
-        <property key="AutoSelectMemRanges" value="auto"/>
-        <property key="CLC 1" value="true"/>
-        <property key="CLC 2" value="true"/>
-        <property key="COMPARATOR" value="true"/>
-        <property key="CRC" value="true"/>
-        <property key="CTMU" value="true"/>
-        <property key="DMA" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
-        <property key="I2C 1" value="true"/>
-        <property key="I2C 2" value="true"/>
-        <property key="INPUT CAPTURE 1" value="true"/>
-        <property key="INPUT CAPTURE 2" value="true"/>
-        <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="IOC" value="true"/>
-        <property key="LVD" value="true"/>
-        <property key="MCCP/SCCP 1" value="true"/>
-        <property key="MCCP/SCCP 2" value="true"/>
-        <property key="MCCP/SCCP 3" value="true"/>
-        <property key="MCCP/SCCP 4" value="true"/>
-        <property key="OSC" value="true"/>
-        <property key="OUTPUT COMPARE 1" value="true"/>
-        <property key="OUTPUT COMPARE 2" value="true"/>
-        <property key="OUTPUT COMPARE 3" value="true"/>
-        <property key="PMP" value="true"/>
-        <property key="REFO" value="true"/>
-        <property key="RTCC" value="true"/>
-        <property key="SPI 1" value="true"/>
-        <property key="SPI 2" value="true"/>
-        <property key="SPI 3" value="true"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
-        <property key="TIMER 1" value="true"/>
-        <property key="TIMER 2" value="true"/>
-        <property key="TIMER 3" value="true"/>
-        <property key="ToolFirmwareFilePath"
-                  value="Press to browse for a specific firmware version"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="UART 1" value="true"/>
-        <property key="UART 2" value="true"/>
-        <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
-        <property key="hwtoolclock.frcindebug" value="false"/>
-        <property key="memories.aux" value="false"/>
-        <property key="memories.bootflash" value="false"/>
-        <property key="memories.configurationmemory" value="true"/>
-        <property key="memories.configurationmemory2" value="true"/>
-        <property key="memories.dataflash" value="true"/>
-        <property key="memories.eeprom" value="true"/>
-        <property key="memories.flashdata" value="true"/>
-        <property key="memories.id" value="true"/>
-        <property key="memories.instruction.ram" value="true"/>
-        <property key="memories.instruction.ram.ranges"
-                  value="${memories.instruction.ram.ranges}"/>
-        <property key="memories.programmemory" value="true"/>
-        <property key="memories.programmemory.ranges" value="0-2aeff"/>
-        <property key="poweroptions.powerenable" value="false"/>
-        <property key="programoptions.donoteraseauxmem" value="false"/>
-        <property key="programoptions.eraseb4program" value="true"/>
-        <property key="programoptions.preservedataflash" value="false"/>
-        <property key="programoptions.preservedataflash.ranges" value=""/>
-        <property key="programoptions.preserveeeprom" value="false"/>
-        <property key="programoptions.preserveeeprom.ranges" value=""/>
-        <property key="programoptions.preserveprogram.ranges" value=""/>
-        <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.preserveuserid" value="false"/>
-        <property key="programoptions.programcalmem" value="false"/>
-        <property key="programoptions.programuserotp" value="false"/>
-        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
-        <property key="programoptions.usehighvoltageonmclr" value="false"/>
-        <property key="programoptions.uselvpprogramming" value="false"/>
-        <property key="voltagevalue" value="3.25"/>
-      </Tool>
+      <item path="components/SPI/spi_ports/dummy/dummy_spi_port.c"
+            ex="true"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-CO>
+        </C30-CO>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
+      <item path="components/SPI/spi_ports/esp-idf/esp_idf_spi_port.c"
+            ex="true"
+            overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-CO>
+        </C30-CO>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
     </conf>
   </confs>
 </configurationDescriptor>

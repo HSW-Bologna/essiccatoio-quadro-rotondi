@@ -6,6 +6,11 @@
 #include "hardwareprofile.h"
 #include "gettoniera.h"
 #include "digin.h"
+#include "sht3.h"
+#include "temperature.h"
+#include "led.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 #define SLAVE_ADDRESS 2
 
@@ -18,6 +23,10 @@ enum {
     REG_GETT3,
     REG_GETT4,
     REG_GETT5,
+    REG_TEMPERATURE,
+    REG_HUMIDITY,
+    REG_ADC_TEMPERATURE0,
+    REG_ADC_TEMPERATURE1,
     NUM_INPUT_REGISTERS
 };
 
@@ -142,7 +151,7 @@ ModbusError myRegisterCallback(
         case MODBUS_REGQ_W_CHECK:
             switch (args->type) {
                 case MODBUS_HOLDING_REGISTER:
-                    result->exceptionCode = MODBUS_EXCEP_ILLEGAL_FUNCTION;
+                    result->exceptionCode = MODBUS_EXCEP_NONE;
                     break;
                 
                 case MODBUS_INPUT_REGISTER:          
@@ -194,6 +203,38 @@ ModbusError myRegisterCallback(
                         case REG_GETT5:
                             result->value = gettoniera_get_count(REG_GETT5);
                             break;
+                        case REG_HUMIDITY:{
+                            uint16_t temperature=0, humidity=0;
+                            if (!sht3_read(&temperature, &humidity)) {
+                                result->value = humidity;
+                            }
+                            else {
+                                //result->exceptionCode
+                            }
+                        }
+                            break;
+                        case REG_TEMPERATURE:{
+                            uint16_t temperature=0, humidity=0;
+                            if (!sht3_read(&temperature, &humidity)) {
+                                result->value = temperature;
+                            }
+                            else {
+                                //result->exceptionCode
+                            }
+                        }
+                            break;
+                        case REG_ADC_TEMPERATURE0:{
+                            uint16_t temperature0=0, temperature1=0;
+                            temperature_get_value(&temperature0,&temperature1);
+                            result->value = temperature0;
+                        }
+                            break;
+                        case REG_ADC_TEMPERATURE1:{
+                            uint16_t temperature0=0, temperature1=0;
+                            temperature_get_value(&temperature0,&temperature1);
+                            result->value = temperature1;
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -209,6 +250,9 @@ ModbusError myRegisterCallback(
             {
                 case MODBUS_COIL:
                     digout_update(coil2digout[args->index], args->value);
+                    break;
+                case MODBUS_HOLDING_REGISTER:
+                    led_update(args->index, args->value);
                     break;
                     
                 default:

@@ -14,16 +14,24 @@
 #include "controller/modbus_server.h"
 #include "gettoniera.h"
 #include "i2c_ports/PIC/i2c_bitbang.h"
+#include "spi.h"
+#include "temperature.h"
+#include "pressostato.h"
+#include "spi_devices/adc/MCP3202/mcp3202.h"
+#include "spi_devices.h"
+#include "sht3.h"
+#include "led.h"
 
 static model_t model;
 
 
 int main(void) {
     unsigned long heartbit_ts = 0;
-    unsigned long t = 0;
+    unsigned long t = 0, ttemp=0;
   
     system_init();
     i2c_bitbang_init(3);
+    spi_init();
     timer_init();
     pwoff_init();
     digin_init();
@@ -32,6 +40,8 @@ int main(void) {
     uart_init();
     gettoniera_init();
     modbus_server_init();
+    pressostato_init();
+    led_init();
     
     model_init(&model);
     controller_init(&model);
@@ -40,12 +50,14 @@ int main(void) {
    
     for(;;) {
         ClrWdt();
-        modbus_server_manage();
-        
+        modbus_server_manage();        
+ 
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;
             heartbit_ts = get_millis();
             x = !x;
+
+
         }
         if (is_expired(t, get_millis(), 10UL)) {
             //gettoniera_take_insert();
@@ -56,6 +68,13 @@ int main(void) {
             }
             t = get_millis();
         }      
+        
+        if (is_expired(ttemp, get_millis(), 100UL)) {
+            temperature_take_reading();
+            //pressostato_take_reading();
+            ttemp=get_millis();
+        }
+        
     }
     
     return 0;

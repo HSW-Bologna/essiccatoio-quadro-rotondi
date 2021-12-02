@@ -2,6 +2,17 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/hardwareprofile.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/components/liblightmodbus/include/lightmodbus/base.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/components/gel/gel/timer/timecheck.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/temperature.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/spi.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/sht3.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/main.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/led.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/controller/modbus_server.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/timer.c</file>
+        </group>
     </open-files>
 </project-private>

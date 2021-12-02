@@ -89,4 +89,7 @@
 #define INT1_TRIS TRISBbits.TRISB7
 #define INT1_PORT PORTBbits.RB7
 
+#define ADC_CHANNEL 9
+#define ADC_TRIS TRISBbits.TRISB15
+
 #endif

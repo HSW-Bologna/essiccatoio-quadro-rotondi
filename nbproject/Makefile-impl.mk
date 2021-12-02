@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=EssiccatoioQuadro.X
+PROJECTNAME=essiccatoio-quadro-rotondi
 
 # Active Configuration
 DEFAULTCONF=default
