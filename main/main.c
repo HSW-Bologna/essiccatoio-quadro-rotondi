@@ -29,7 +29,7 @@ int main(void) {
     unsigned long heartbit_ts = 0;
     unsigned long t = 0, ttemp=0;
   
-    system_init();
+    system_init();   
     i2c_bitbang_init(3);
     spi_init();
     timer_init();
@@ -56,11 +56,11 @@ int main(void) {
             LED_RUN_LAT = !LED_RUN_LAT;
             heartbit_ts = get_millis();
             x = !x;
-
-
         }
+        
         if (is_expired(t, get_millis(), 10UL)) {
-            //gettoniera_take_insert();
+            digin_take_reading();
+            
             if (gettoniera_take_insert()) {
                 model.pwoff.credito+=gettoniera_get_count(GETT1);
                 controller_update_pwoff(&model);

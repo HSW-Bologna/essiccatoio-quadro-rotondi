@@ -31,7 +31,7 @@ static uint8_t       uart_rx_buffer[UART_BUFFER_RX];
 volatile static int  index_rx = 0;
 static unsigned long ts=0;
 
-#define BAUDRATE    115200
+#define BAUDRATE    230400
 #define BAUDRATEREG FOSC / 8 / BAUDRATE - 1
 
 
