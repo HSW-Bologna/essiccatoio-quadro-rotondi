@@ -2,6 +2,14 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/components/gel/gel/timer/timecheck.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/digin.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/uart1_driver.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/components/liblightmodbus/include/lightmodbus/master.h</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/components/gel/gel/debounce/debounce.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/peripherals/uart2_driver.c</file>
+            <file>file:/C:/Users/Virginia/Desktop/Projects/essiccatoio-quadro-rotondi/main/controller/modbus_server.c</file>
+        </group>
     </open-files>
 </project-private>

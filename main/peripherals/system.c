@@ -74,6 +74,9 @@ void system_init(void) {
     RPOR8bits.RP17R = 16; //pwm out 2a
     RPOR12bits.RP24R = 3; //uart1 tx
     RPINR18bits.U1RXR = 25; //uart1 rx
+    RPOR4bits.RP9R = 5; //uart2 tx
+    RPINR19bits.U2RXR = 23; //uart2 rx
+    
     PPSLock;
 
     LED_RUN_TRIS = OUTPUT_GPIO;

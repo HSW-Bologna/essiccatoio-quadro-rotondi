@@ -7,7 +7,7 @@
 #include "peripherals/pwm.h"
 #include "peripherals/i2c_devices.h"
 #include "i2c_ports/PIC/i2c_bitbang.h"
-#include "uart_driver.h"
+#include "uart1_driver.h"
 #include "pwoff.h"
 #include "model/model.h"
 #include "controller/controller.h"
@@ -21,14 +21,15 @@
 #include "spi_devices.h"
 #include "sht3.h"
 #include "led.h"
+#include "uart2_driver.h"
+#include "modbus_exp.h"
 
 static model_t model;
-
 
 int main(void) {
     unsigned long heartbit_ts = 0;
     unsigned long t = 0, ttemp=0;
-  
+    
     system_init();   
     i2c_bitbang_init(3);
     spi_init();
@@ -37,20 +38,22 @@ int main(void) {
     digin_init();
     digout_init();
     pwm_init();
-    uart_init();
+    uart1_init();
+    uart2_init();
     gettoniera_init();
     modbus_server_init();
+    modbus_exp_init();
     pressostato_init();
     led_init();
-    
     model_init(&model);
     controller_init(&model);
+
+
     int x = 0;
-    
    
     for(;;) {
         ClrWdt();
-        modbus_server_manage();        
+        modbus_server_manage();   
  
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;
@@ -60,6 +63,9 @@ int main(void) {
         
         if (is_expired(t, get_millis(), 10UL)) {
             digin_take_reading();
+            digout_period_check();
+            led_period_check();
+            modbus_exp_period_check();
             
             if (gettoniera_take_insert()) {
                 model.pwoff.credito+=gettoniera_get_count(GETT1);
@@ -69,10 +75,12 @@ int main(void) {
             t = get_millis();
         }      
         
-        if (is_expired(ttemp, get_millis(), 100UL)) {
+        if (is_expired(ttemp, get_millis(), 1000UL)) {
             temperature_take_reading();
-            //pressostato_take_reading();
+            //pressostato_take_reading();            
             ttemp=get_millis();
+            
+            
         }
         
     }

@@ -4,35 +4,49 @@
 #include "system.h"
 #include "spi_devices.h"
 
+#define SETBIT(map, bit, value) ((map & (~(1 << bit))) | (value << bit))
+
+static int change;
+static uint8_t status = 0;
 
 void led_init(void) {
     mcp23s08_set_gpio_direction_register(mcp23s08_driver, MCP23S08_DEFAULT_ADDR, OUTPUT_REGISTER);
+    change=1;
 }
 
 void led_update(led_t output, int val) {
     val = val > 0;
     switch(output) {
         case LED0 :
-            mcp23s08_set_gpio_level(mcp23s08_driver, MCP23S08_DEFAULT_ADDR, LED0, val);
+            status = SETBIT(status, 0, val);
+            change=1;
             break;
         case LED1 :
-            mcp23s08_set_gpio_level(mcp23s08_driver, MCP23S08_DEFAULT_ADDR, LED1, val);
+            status = SETBIT(status, 1, val);
+            change=1;
             break;
         case LED2 :
-            mcp23s08_set_gpio_level(mcp23s08_driver, MCP23S08_DEFAULT_ADDR,LED2, val);
+            status = SETBIT(status, 2, val);
+            change=1;
             break;
         default:
             break;
     }
 }
 
+void led_period_check(void) {
+    if (change) {
+        mcp23s08_set_gpio_register(mcp23s08_driver, MCP23S08_DEFAULT_ADDR, status);
+        change=0;
+    }
+}
+
 uint8_t led_get_status(void) {
-    uint8_t res=0;
-    mcp23s08_get_gpio_register(mcp23s08_driver,MCP23S08_DEFAULT_ADDR, &res);
-    return res;
+    return status;
 }
 
 
 void led_clear_all (void) {
-    mcp23s08_set_gpio_register(mcp23s08_driver, MCP23S08_DEFAULT_ADDR,OUTPUT_REGISTER);
+    status=0;
+    change=1;
 }

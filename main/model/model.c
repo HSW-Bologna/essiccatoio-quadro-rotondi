@@ -1,4 +1,4 @@
-#include <assert.h>
+#include "utils/assert.h"
 #include "gel/timer/stopwatch.h"
 #include "model.h"
 #include "gel/crc/crc16-ccitt.h"

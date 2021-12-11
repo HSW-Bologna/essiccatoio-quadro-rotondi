@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/EssiccatoioQuadro.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=EssiccatoioQuadro.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=essiccatoioquadro.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/essiccatoio-quadro-rotondi.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=essiccatoio-quadro-rotondi.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=essiccatoio-quadro-rotondi/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/essiccatoioquadro.x/bin
+makeDirectory ${TMPDIR}/essiccatoio-quadro-rotondi/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/essiccatoioquadro.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/essiccatoio-quadro-rotondi.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/essiccatoioquadro.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/essiccatoio-quadro-rotondi.tar *
 checkReturnCode
 
 # Cleanup

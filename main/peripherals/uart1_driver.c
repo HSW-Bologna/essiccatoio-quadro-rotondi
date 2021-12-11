@@ -14,13 +14,13 @@
 #include <string.h>
 #include "gel/timer/timecheck.h"
 #include "timer.h"
-#include "uart_driver.h"
+#include "uart1_driver.h"
 
 
 #define UART_BUFFER_SIZE 512
 #define UART_BUFFER_RX 300
 //#define UART_TIMEOUT     100
-#define UART_TIMEOUT     50
+#define UART_TIMEOUT     20
 
 static uint8_t       uart_tx_buffer[UART_BUFFER_SIZE];
 volatile static int  f_tx_on  = 0;
@@ -31,7 +31,7 @@ static uint8_t       uart_rx_buffer[UART_BUFFER_RX];
 volatile static int  index_rx = 0;
 static unsigned long ts=0;
 
-#define BAUDRATE    230400
+#define BAUDRATE    115200
 #define BAUDRATEREG FOSC / 8 / BAUDRATE - 1
 
 
@@ -45,11 +45,11 @@ Correct values in main.h and uart2.h files
 /*----------------------------------------------------------------------------*/
 /*  Inizializzazione UART                                                     */
 /*----------------------------------------------------------------------------*/
-void uart_init(void) {
+void uart1_init(void) {
     U1MODEbits.UARTEN = 0;     // Bit15 TX, RX DISABLED, ENABLE at end of func
 
-    UART_RX_TRIS = 1;
-    UART_TX_TRIS = 0;
+    UART1_RX_TRIS = 1;
+    UART1_TX_TRIS = 0;
 
     U1MODEbits.USIDL  = 0;     // Bit13 Continue in Idle
     U1MODEbits.IREN   = 0;     // Bit12 No IR translation
@@ -91,7 +91,7 @@ void uart_init(void) {
     
 }
 
-int uart_sync_write(uint8_t *data, int len) {
+int uart1_sync_write(uint8_t *data, int len) {
     int i = 0;
     
     IEC0bits.U1TXIE = 0;
@@ -104,16 +104,16 @@ int uart_sync_write(uint8_t *data, int len) {
     return len;
 }
 
-int uart_read_rx_buffer(uint8_t *buffer) {
+int uart1_read_rx_buffer(uint8_t *buffer) {
     memcpy(buffer, uart_rx_buffer, index_rx);
     return index_rx;
 }
 
-void uart_clean_rx_buffer() {
+void uart1_clean_rx_buffer() {
     index_rx=0;
 }
 
-int uart_async_write(uint8_t *data, int len) {
+int uart1_async_write(uint8_t *data, int len) {
     
     if (f_tx_on) return -1;
     else {

@@ -1,7 +1,7 @@
-#include <assert.h>
+#include "utils/assert.h"
 #include "libconf.h"
 #include "modbus_server.h"
-#include "peripherals/uart_driver.h"
+#include "peripherals/uart1_driver.h"
 #include "peripherals/digout.h"
 #include "hardwareprofile.h"
 #include "gettoniera.h"
@@ -54,6 +54,14 @@ enum {
     COIL_RELE7,
     COIL_RELE8,
     COIL_RELE9,
+    COIL_RELE10,
+    COIL_RELE11,
+    COIL_RELE12,
+    COIL_RELE13,
+    COIL_RELE14,
+    COIL_RELE15,
+    COIL_RELE16,
+    COIL_RELE17,
     NUM_COILS,
 };
 
@@ -85,7 +93,7 @@ void modbus_server_init(void) {
 
 void modbus_server_manage(void) {
     uint8_t buffer[256];
-    int len = uart_read_rx_buffer(buffer); 
+    int len = uart1_read_rx_buffer(buffer); 
     
     if (len == 0) {
         return;
@@ -95,8 +103,8 @@ void modbus_server_manage(void) {
     err = modbusParseRequestRTU(&slave, SLAVE_ADDRESS, buffer, len);
     int x = modbusIsOk(err);
     if (x) {
-        uart_async_write((uint8_t*)modbusSlaveGetResponse(&slave), modbusSlaveGetResponseLength(&slave));
-        uart_clean_rx_buffer();
+        uart1_async_write((uint8_t*)modbusSlaveGetResponse(&slave), modbusSlaveGetResponseLength(&slave));
+        uart1_clean_rx_buffer();
     } else {
         Nop();
         Nop();
@@ -132,6 +140,14 @@ ModbusError myRegisterCallback(
         DIGOUT_OUT7,
         DIGOUT_OUT8,
         DIGOUT_OUT9,
+        DIGOUT_OUT10,
+        DIGOUT_OUT11,
+        DIGOUT_OUT12,
+        DIGOUT_OUT13,
+        DIGOUT_OUT14,
+        DIGOUT_OUT15,
+        DIGOUT_OUT16,
+        DIGOUT_OUT17,
     };
     
     digin_t din2digin[NUM_DISCRETE_INPUTS] = {
