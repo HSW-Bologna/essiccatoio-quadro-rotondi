@@ -23,6 +23,7 @@
 #include "led.h"
 #include "uart2_driver.h"
 #include "modbus_exp.h"
+#include "cycle.h"
 
 
 static model_t model;
@@ -30,7 +31,7 @@ static model_t model;
 
 int main(void) {
     unsigned long heartbit_ts = 0;
-    unsigned long t = 0, ttemp=0;
+    unsigned long t = 0, ttemp=0,t500=0;
     
     system_init();   
     i2c_bitbang_init(3);
@@ -49,9 +50,10 @@ int main(void) {
     led_init();
     model_init(&model);
     controller_init(&model);
-
-
     int x = 0;
+    
+    pwm_set(50, 1);
+    pwm_set(50, 2);
    
     for(;;) {
         ClrWdt();
@@ -77,15 +79,17 @@ int main(void) {
             t = get_millis();
         }      
         
+        if (is_expired(t500,get_millis(),500UL)) {
+            modbus_exp_read_input_status(SLAVE_DEFAULT_ADDRESS);
+            cycle_manage_callbacks();
+            t500=get_millis();
+        }
+        
         if (is_expired(ttemp, get_millis(), 1000UL)) {
             temperature_take_reading();
             //pressostato_take_reading();            
             ttemp=get_millis();
-            
-            
-        }
-        
+        }        
     }
-    
     return 0;
 }

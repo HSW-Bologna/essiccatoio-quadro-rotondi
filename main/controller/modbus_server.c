@@ -40,6 +40,14 @@ enum {
     DIN_IN5,
     DIN_IN6,
     DIN_IN7,
+    DIN_IN8,
+    DIN_IN9,
+    DIN_IN10,
+    DIN_IN11,
+    DIN_IN12,
+    DIN_IN13,
+    DIN_IN14,
+    DIN_IN15,
     NUM_DISCRETE_INPUTS
 };
 
@@ -161,6 +169,14 @@ ModbusError myRegisterCallback(
         DIGIN_IN5,
         DIGIN_IN6,
         DIGIN_IN7,
+        DIGIN_IN8,
+        DIGIN_IN9,
+        DIGIN_IN10,
+        DIGIN_IN11,
+        DIGIN_IN12,
+        DIGIN_IN13,
+        DIGIN_IN14,
+        DIGIN_IN15,
     };
     
     model_t *pmodel = modbusSlaveGetUserPointer(status);

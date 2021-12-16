@@ -15,6 +15,10 @@ typedef struct {
 
 typedef struct {
     pwoff_data_t pwoff;
+    uint16_t initialized;
+    
+    uint16_t tempo_marcia;
+    uint16_t tempo_pausa;
 } model_t;
 
 void          model_init(model_t *pmodel);

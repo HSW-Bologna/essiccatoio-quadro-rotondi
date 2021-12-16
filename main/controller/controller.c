@@ -138,10 +138,17 @@ int controller_holding_register_readable(holding_register_t reg) {
 int controller_holding_register_writable(holding_register_t reg) {
     switch(reg) {
         case HOLDING_REGISTER_COMMAND:
+        case HOLDING_REGISTER_TEST:
+        case HOLDING_REGISTER_PWM1:
+        case HOLDING_REGISTER_PWM2:
+        case HOLDING_REGISTER_TEMPO_PAUSA:
+        case HOLDING_REGISTER_TEMPO_MARCIA:
+        case HOLDING_REGISTER_INITIALIZED:
             return 1;
             
         default:
             return 0;
+            
     }
 }
 
@@ -153,10 +160,24 @@ void controller_write_holding_register(model_t *pmodel, holding_register_t reg, 
     }
     
     switch(reg) {    
+        case HOLDING_REGISTER_INITIALIZED:
+            pmodel->initialized=value;
+            break;
+        case HOLDING_REGISTER_TEMPO_MARCIA:
+            pmodel->tempo_marcia=value;
+            break;
+        case HOLDING_REGISTER_TEMPO_PAUSA:
+            pmodel->tempo_pausa=value;
+            break;
         case HOLDING_REGISTER_COMMAND: 
             controller_handle_command(pmodel, value);
             break;
-        
+        case HOLDING_REGISTER_PWM1:
+            pwm_set(value, 1);
+            break;
+        case HOLDING_REGISTER_PWM2:
+            pwm_set(value, 2);
+            break;
         default:
             break;
     }
@@ -171,6 +192,8 @@ uint16_t controller_read_holding_register(model_t *pmodel, holding_register_t re
     }
     
     switch(reg) {  
+        case HOLDING_REGISTER_INITIALIZED:
+            return pmodel->initialized;
         case HOLDING_REGISTER_STATE:
             return cycle_get_state();
         

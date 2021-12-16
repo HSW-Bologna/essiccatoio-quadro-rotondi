@@ -10,6 +10,9 @@
 void model_init(model_t *pmodel) {
     assert(pmodel != NULL);
     pmodel->pwoff.credito     = 0;
+    pmodel->tempo_marcia = 4;
+    pmodel->tempo_pausa = 2;
+    pmodel->initialized = 0;
 }
 
 
