@@ -8,10 +8,13 @@
 
 
 void model_init(model_t *pmodel) {
+    assert(pmodel != NULL);
     pmodel->pwoff.credito     = 0;
 }
 
+
 size_t model_pwoff_serialize(model_t *pmodel, uint8_t buff[static PWOFF_SERIALIZED_SIZE]) {
+    assert(pmodel != NULL);
     size_t i = 2;
     i += serialize_uint16_be(&buff[i], pmodel->pwoff.credito);
     unsigned short crc = crc16_ccitt(&buff[2], i - 2, 0);
@@ -22,6 +25,7 @@ size_t model_pwoff_serialize(model_t *pmodel, uint8_t buff[static PWOFF_SERIALIZ
 
 
 size_t model_pwoff_deserialize(model_t *pmodel, uint8_t *buff) {
+    assert(pmodel != NULL);
     size_t   i = 0;
     uint16_t crc;
     i += deserialize_uint16_be(&crc, &buff[i]);
@@ -34,4 +38,3 @@ size_t model_pwoff_deserialize(model_t *pmodel, uint8_t *buff) {
     assert(i == PWOFF_SERIALIZED_SIZE);
     return i;
 }
-

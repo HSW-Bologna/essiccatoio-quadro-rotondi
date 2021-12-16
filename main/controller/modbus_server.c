@@ -91,7 +91,8 @@ void modbus_server_init(void) {
     assert(modbusIsOk(err) && "modbusSlaveInit() failed"); 
 }
 
-void modbus_server_manage(void) {
+
+void modbus_server_manage(model_t *pmodel) {
     uint8_t buffer[256];
     int len = uart1_read_rx_buffer(buffer); 
     
@@ -100,6 +101,7 @@ void modbus_server_manage(void) {
     }
     
     ModbusErrorInfo err;
+    modbusSlaveSetUserPointer(&slave, pmodel);
     err = modbusParseRequestRTU(&slave, SLAVE_ADDRESS, buffer, len);
     int x = modbusIsOk(err);
     if (x) {
@@ -161,13 +163,21 @@ ModbusError myRegisterCallback(
         DIGIN_IN7,
     };
     
+    model_t *pmodel = modbusSlaveGetUserPointer(status);
+    
     switch (args->query)
     {
         case MODBUS_REGQ_R_CHECK:
         case MODBUS_REGQ_W_CHECK:
             switch (args->type) {
                 case MODBUS_HOLDING_REGISTER:
-                    result->exceptionCode = MODBUS_EXCEP_NONE;
+                    if (args->query == MODBUS_REGQ_R_CHECK && controller_holding_register_readable(args->index)) {
+                        result->exceptionCode = MODBUS_EXCEP_NONE;
+                    } else if (args->query == MODBUS_REGQ_W_CHECK && controller_holding_register_writable(args->index)) {
+                        result->exceptionCode = MODBUS_EXCEP_NONE;
+                    } else {
+                        result->exceptionCode = MODBUS_EXCEP_ILLEGAL_FUNCTION;
+                    }
                     break;
                 
                 case MODBUS_INPUT_REGISTER:          
@@ -254,6 +264,11 @@ ModbusError myRegisterCallback(
                         default:
                             break;
                     }
+                    
+                    case MODBUS_HOLDING_REGISTER:
+                        result->value = controller_read_holding_register(pmodel, args->index);
+                        break;
+                    
                 default: 
                     break;
                 
@@ -267,8 +282,9 @@ ModbusError myRegisterCallback(
                 case MODBUS_COIL:
                     digout_update(coil2digout[args->index], args->value);
                     break;
+                    
                 case MODBUS_HOLDING_REGISTER:
-                    led_update(args->index, args->value);
+                    controller_write_holding_register(pmodel, args->index, args->value);
                     break;
                     
                 default:

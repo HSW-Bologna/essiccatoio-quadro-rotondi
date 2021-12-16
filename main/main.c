@@ -24,7 +24,9 @@
 #include "uart2_driver.h"
 #include "modbus_exp.h"
 
+
 static model_t model;
+
 
 int main(void) {
     unsigned long heartbit_ts = 0;
@@ -53,7 +55,7 @@ int main(void) {
    
     for(;;) {
         ClrWdt();
-        modbus_server_manage();   
+        modbus_server_manage(&model);   
  
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;

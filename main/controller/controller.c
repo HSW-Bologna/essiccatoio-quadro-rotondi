@@ -13,6 +13,7 @@
 #include "gel/serializer/serializer.h"
 #include "peripherals/pwoff.h"
 #include "gel/wearleveling/wearleveling.h"
+#include "cycle.h"
 
 #define CHECK_BYTE                   0xAA
 #define CHECK_BYTE_ADDRESS           0
@@ -23,16 +24,18 @@
 #define WL_BLOCK_NUM                 8
 #define WL_MARKER_ADDRESS(block_num) ((PWOFF_DATA_ADDRESS) + ((block_num) * (WL_BLOCK_SIZE)))
 #define WL_DATA_ADDRESS(block_num)   ((PWOFF_DATA_ADDRESS) + ((block_num) * (WL_BLOCK_SIZE) + 1))
+#define WEARLEVELING 0
+
 
 static uint8_t               pwoff_data[PWOFF_SERIALIZED_SIZE] = {0};
 static wear_leveled_memory_t memory;
+
 
 static int read_marker(size_t block_num, uint8_t *marker);
 static int read_block(size_t block_num, uint8_t *buffer, size_t len);
 static int write_block(size_t block_num, uint8_t marker, uint8_t *buffer, size_t len);
 static int controller_start_check(void);
 
-#define WEARLEVELING 0
 
 void controller_init(model_t *pmodel) {
     wearleveling_init(&memory, read_block, write_block, read_marker, WL_BLOCK_NUM);
@@ -52,6 +55,7 @@ void controller_init(model_t *pmodel) {
         
     pwoff_set_callback(controller_save_pwoff);
 }
+
 
 size_t controller_update_pwoff(model_t *pmodel) {
     pwoff_interrupt_enable(0);
@@ -117,4 +121,77 @@ static int controller_start_check(void) {
         }
     }
     return 0;
+}
+
+
+int controller_holding_register_readable(holding_register_t reg) {
+    switch(reg) {
+        case 0 ... _NUM_HOLDING_REGISTERS - 1:
+            return 1;
+            
+        default:
+            return 0;
+    }
+}
+
+
+int controller_holding_register_writable(holding_register_t reg) {
+    switch(reg) {
+        case HOLDING_REGISTER_COMMAND:
+            return 1;
+            
+        default:
+            return 0;
+    }
+}
+
+
+void controller_write_holding_register(model_t *pmodel, holding_register_t reg, uint16_t value) {
+    assert(pmodel != NULL);
+    if (!controller_holding_register_writable(reg)) {
+        return;
+    }
+    
+    switch(reg) {    
+        case HOLDING_REGISTER_COMMAND: 
+            controller_handle_command(pmodel, value);
+            break;
+        
+        default:
+            break;
+    }
+    
+}
+
+
+uint16_t controller_read_holding_register(model_t *pmodel, holding_register_t reg) {
+    assert(pmodel != NULL);
+    if (!controller_holding_register_readable(reg)) {
+        return 0;
+    }
+    
+    switch(reg) {  
+        case HOLDING_REGISTER_STATE:
+            return cycle_get_state();
+        
+        default:
+            return 0;
+    }
+    
+}
+
+
+void controller_handle_command(model_t *pmodel, uint16_t command) {
+    switch (command) {
+        case COMMAND_REGISTER_START:
+            cycle_send_event(pmodel, CYCLE_EVENT_CODE_START);
+            break;
+            
+        case COMMAND_REGISTER_STOP:
+            cycle_send_event(pmodel, CYCLE_EVENT_CODE_STOP);
+            break;
+        
+        default:
+            break;
+    }
 }
