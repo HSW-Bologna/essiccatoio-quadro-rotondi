@@ -67,29 +67,25 @@ void pwm_init(void) {
     CCP2RA = 1;
     CCP2RB = 0x0000;                  // Set the falling edge compare value
     CCP2CON1Lbits.CCPON = 1;          // Turn on MCCP module
+    
+    pwm_set(0, 1);
+    pwm_set(0, 2);
 }
 
+
 void pwm_set(uint8_t perc, int i) {
-    Nop();
-    Nop();
-    Nop();
-//    uint16_t res = (uint16_t)((unsigned long)PERIOD*(unsigned long)perc)/100;
     uint16_t res = (uint16_t)((unsigned long)PERIOD/100)*perc;
     if (res==0) {
         res = 1;
     }
 
-    if (perc == 100)
+    if (perc >= 100) {
         res = PERIOD;
+    }
     
-    Nop();
-    Nop();
-    Nop();
-    if (i==1)
-        CCP1RA = res;
-    if (i==2)
-        CCP2RA = res;
-    Nop();
-    Nop();
-    Nop();
+    if (i==1) {
+        CCP1RA = PERIOD - res;
+    } else if (i==2) {
+        CCP2RA = PERIOD - res;
+    }
 }

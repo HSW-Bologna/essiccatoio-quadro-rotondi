@@ -41,9 +41,9 @@ static int comunication_err=0;
 static uint8_t rx_buffer[256];
 static unsigned long request_time=200;
 
-ModbusError masterExceptionCallback( uint8_t address, uint8_t function,
+ModbusError masterExceptionCallback( const ModbusMaster *status,uint8_t address, uint8_t function,
                                            ModbusExceptionCode code);
-ModbusError masterDataCallback( const ModbusDataCallbackArgs *args);
+ModbusError masterDataCallback(const ModbusMaster *status, const ModbusDataCallbackArgs *args);
 LIGHTMODBUS_WARN_UNUSED ModbusError modbusStaticAllocator2(ModbusBuffer *buffer, uint16_t size, void *context);
 
 
@@ -62,17 +62,17 @@ void modbus_exp_init(void) {
     assert(modbusIsOk(err) && "modbusMasterInit() failed"); 
 }
 
-ModbusError masterDataCallback(const ModbusDataCallbackArgs *args)
+ModbusError masterDataCallback(const ModbusMaster *status, const ModbusDataCallbackArgs *args)
 {
     
-    uint16_t *input_buffer=modbusMasterGetUserPointer(&master);
-    input_buffer = ((args->value > 0) << args->index);
+    //uint16_t *input_buffer=modbusMasterGetUserPointer(&master);
+    //TODO: fix //input_buffer = ((args->value > 0) << args->index);
     
     // Always return MODBUS_OK
     return MODBUS_OK;
 }
 
-ModbusError masterExceptionCallback( uint8_t address, uint8_t function,
+ModbusError masterExceptionCallback(const ModbusMaster *status, uint8_t address, uint8_t function,
                                            ModbusExceptionCode code) {
     return MODBUS_OK;
 }
@@ -83,7 +83,7 @@ void modbus_exp_write_coils(uint8_t address, uint16_t status) {
     
     ModbusErrorInfo err = modbusBuildRequest15RTU(&master, address, 0, 16, buffer);
     assert(modbusIsOk(err));
-    uart2_sync_write(modbusMasterGetRequest(&master), modbusMasterGetRequestLength(&master));
+    uart2_sync_write((uint8_t*)modbusMasterGetRequest(&master), modbusMasterGetRequestLength(&master));
     request_time=get_millis();
     waiting=WAITING_MESSAGE_TYPE_NO_DATA;
     response_len=8;
@@ -92,7 +92,7 @@ void modbus_exp_write_coils(uint8_t address, uint16_t status) {
 void modbus_exp_read_input_status(uint8_t address) {
     ModbusErrorInfo err = modbusBuildRequest02RTU(&master, address, 0, 12);
     assert(modbusIsOk(err));
-    uart2_sync_write(modbusMasterGetRequest(&master), modbusMasterGetRequestLength(&master));
+    uart2_sync_write((uint8_t*)modbusMasterGetRequest(&master), modbusMasterGetRequestLength(&master));
     request_time=get_millis();
     waiting=WAITING_MESSAGE_TYPE_INPUT_STATUS;
     response_len=MODBUS_RESPONSE_02_LEN(12);
@@ -130,22 +130,7 @@ void modbus_exp_period_check(void) {
 }
 
 int modbus_exp_is_waiting(void) {
-    switch (waiting) {
-        case WAITING_MESSAGE_TYPE_NONE: {
-            return WAITING_MESSAGE_TYPE_NONE;
-            break;
-        }
-        case WAITING_MESSAGE_TYPE_NO_DATA: {
-            return WAITING_MESSAGE_TYPE_NO_DATA;
-            break;
-        }
-        case WAITING_MESSAGE_TYPE_INPUT_STATUS: {
-            return WAITING_MESSAGE_TYPE_INPUT_STATUS;
-            break;
-        }
-        default:
-            break;
-    }
+    return waiting != WAITING_MESSAGE_TYPE_NONE;
 }
 
 

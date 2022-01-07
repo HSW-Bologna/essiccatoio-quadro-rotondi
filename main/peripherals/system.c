@@ -30,7 +30,7 @@
 #pragma config FCKSM = CSDCMD           // Clock Switching Mode bits (Both Clock switching and Fail-safe Clock Monitor are disabled)
 
 // FWDT
-#pragma config WDTPS = PS512            // Watchdog Timer Postscaler bits (1:512)
+#pragma config WDTPS = PS1024           // Watchdog Timer Postscaler bits (1:1024)
 #pragma config FWPSA = PR128            // Watchdog Timer Prescaler bit (1:128)
 #pragma config FWDTEN = ON              // Watchdog Timer Enable bits (WDT Enabled)
 #pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit (Watchdog Timer in Non-Window mode)
@@ -72,11 +72,11 @@ void system_init(void) {
 
     PPSUnLock;
     RPOR8bits.RP17R = 16; //pwm out 2a
+    RPOR8bits.RP16R = 16; //pwm out 2a
     RPOR12bits.RP24R = 3; //uart1 tx
     RPINR18bits.U1RXR = 25; //uart1 rx
     RPOR4bits.RP9R = 5; //uart2 tx
     RPINR19bits.U2RXR = 23; //uart2 rx
-    
     PPSLock;
 
     LED_RUN_TRIS = OUTPUT_GPIO;

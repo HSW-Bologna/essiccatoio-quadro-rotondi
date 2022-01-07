@@ -11,5 +11,10 @@
 #include "i2c_devices.h"
 #include "i2c_devices/io/MCP23008/mcp23008.h"
 
+
+
+
+
 i2c_driver_t eeprom_driver= {.device_address=EEPROM24LC16_DEFAULT_ADDRESS, .i2c_transfer=pic_i2c_bitbang_port_transfer, .ack_polling=pic_i2c_bitbang_port_ack_polling};
-i2c_driver_t io_driver= {.device_address=MCP23008_DEFAULT_ADDR, .i2c_transfer=pic_i2c_bitbang_port_transfer,.ack_polling=pic_i2c_bitbang_port_ack_polling};
+i2c_driver_t output_driver= {.device_address=MCP23008_DEFAULT_ADDR, .i2c_transfer=pic_i2c_bitbang_port_transfer,.ack_polling=pic_i2c_bitbang_port_ack_polling};
+i2c_driver_t input_driver = {.device_address=MCP23008_DEFAULT_ADDR + 0x2, .i2c_transfer=pic_i2c_bitbang_port_transfer,.ack_polling=pic_i2c_bitbang_port_ack_polling};

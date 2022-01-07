@@ -12,10 +12,12 @@
 #include "model/model.h"
 #include "controller/controller.h"
 #include "controller/modbus_server.h"
+#include "controller/riscaldamento.h"
 #include "gettoniera.h"
 #include "i2c_ports/PIC/i2c_bitbang.h"
 #include "spi.h"
-#include "temperature.h"
+#include "ptc.h"
+#include "peripherals/sht3.h"
 #include "pressostato.h"
 #include "spi_devices/adc/MCP3202/mcp3202.h"
 #include "spi_devices.h"
@@ -24,6 +26,7 @@
 #include "uart2_driver.h"
 #include "modbus_exp.h"
 #include "cycle.h"
+#include "alarms.h"
 
 
 static model_t model;
@@ -31,7 +34,7 @@ static model_t model;
 
 int main(void) {
     unsigned long heartbit_ts = 0;
-    unsigned long t = 0, ttemp=0,t500=0;
+    unsigned long t = 0, cycle_ts=0,t500=0, pulse_ts=0;
     
     system_init();   
     i2c_bitbang_init(3);
@@ -50,46 +53,66 @@ int main(void) {
     led_init();
     model_init(&model);
     controller_init(&model);
-    int x = 0;
     
-    pwm_set(50, 1);
-    pwm_set(50, 2);
-   
     for(;;) {
         ClrWdt();
-        modbus_server_manage(&model);   
+        modbus_server_manage(&model);  
+        riscaldamento_manage(&model, cycle_in_test());
  
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;
+            
+            uint16_t remaining_time = cycle_get_remaining_time();
+            if (remaining_time != model.pwoff.remaining_time) {
+                model.pwoff.remaining_time = remaining_time;
+                controller_update_pwoff(&model);
+            }
+            
             heartbit_ts = get_millis();
-            x = !x;
-        }
-        
-        if (is_expired(t, get_millis(), 10UL)) {
-            digin_take_reading();
+        } else if (is_expired(t500,get_millis(),500UL)) {
+            modbus_exp_read_input_status(SLAVE_DEFAULT_ADDRESS);
+            ptc_take_reading();
+            
+            ptc_get_value(&model.adc_ptc1, &model.adc_ptc2);
+            ptc_get_temperature(&model.temperatura_ptc1, &model.temperatura_ptc2);
+            sht3_read(&model.temperatura_sht, &model.umidita_sht);
+            
+            t500=get_millis();
+        } if (is_expired(cycle_ts, get_millis(), 100UL)) {
+            cycle_manage_callbacks(&model);
             digout_period_check();
             led_period_check();
             modbus_exp_period_check();
+            cycle_ts = get_millis();
+        }   
+        
+        if (is_expired(t, get_millis(), 10UL)) {
+            digin_take_reading();
             
-            if (gettoniera_take_insert()) {
-                model.pwoff.credito+=gettoniera_get_count(GETT1);
-                controller_update_pwoff(&model);
-                gettoniera_reset_count(GETT1);
+            if (check_alarms(&model)) {
+                cycle_send_event(&model, CYCLE_EVENT_CODE_ALARM);
             }
+            
             t = get_millis();
         }      
         
-        if (is_expired(t500,get_millis(),500UL)) {
-            modbus_exp_read_input_status(SLAVE_DEFAULT_ADDRESS);
-            cycle_manage_callbacks();
-            t500=get_millis();
-        }
+        if (is_expired(pulse_ts, get_millis(), 5UL)) {
+            if (gettoniera_take_insert() | digin_pulses_take_reading()) {
+                model.pwoff.coins[0] += gettoniera_get_count(GETT1);
+                model.pwoff.coins[1] += gettoniera_get_count(GETT2);
+                model.pwoff.coins[2] += gettoniera_get_count(GETT3);
+                model.pwoff.coins[3] += gettoniera_get_count(GETT4);
+                model.pwoff.coins[4] += gettoniera_get_count(GETT5);
+                model.pwoff.coins[5] += digin_get_pulses();
+
+                controller_update_pwoff(&model);
+                gettoniera_reset_all_count();
+                digin_clear_pulses();
+            }
+            pulse_ts = get_millis();
+        }      
         
-        if (is_expired(ttemp, get_millis(), 1000UL)) {
-            temperature_take_reading();
-            //pressostato_take_reading();            
-            ttemp=get_millis();
-        }        
+        Idle();
     }
     return 0;
 }

@@ -3,5 +3,7 @@
 
 #include "i2c_common/i2c_common.h"
 extern i2c_driver_t eeprom_driver;
-extern i2c_driver_t io_driver;
+extern i2c_driver_t output_driver;
+extern i2c_driver_t input_driver;
+
 #endif

@@ -8,20 +8,20 @@
 #include "digout.h"
 
 void cesto_marcia_set_orario(void) {
-    digout_update(DIGOUT_CESTO_MARCIA_ORARIO,1);
-    digout_update(DIGOUT_CESTO_MARCIA_ANTIORARIO,0);
+    digout_update(DIGOUT_CESTO_AVANTI,1);
+    digout_update(DIGOUT_CESTO_INDIETRO,0);
 }
 
 void cesto_marcia_set_antiorario(void) {
-    digout_update(DIGOUT_CESTO_MARCIA_ANTIORARIO,1);
-    digout_update(DIGOUT_CESTO_MARCIA_ORARIO,0);
+    digout_update(DIGOUT_CESTO_INDIETRO,1);
+    digout_update(DIGOUT_CESTO_AVANTI,0);
 }
 
 void cesto_stop(void) {
-    digout_update(DIGOUT_CESTO_MARCIA_ORARIO,0);
-    digout_update(DIGOUT_CESTO_MARCIA_ANTIORARIO,0);
+    digout_update(DIGOUT_CESTO_AVANTI,0);
+    digout_update(DIGOUT_CESTO_INDIETRO,0);
 }
 
 int cesto_marcia_get_orario(void) {
-    return (digout_get(DIGOUT_CESTO_MARCIA_ORARIO) && !digout_get(DIGOUT_CESTO_MARCIA_ANTIORARIO));
+    return (digout_get(DIGOUT_CESTO_AVANTI) && !digout_get(DIGOUT_CESTO_INDIETRO));
 }

@@ -20,7 +20,7 @@ void gettoniera_init(void) {
     GETT4_TRIS=TRIS_INPUT; //50 CENT
     GETT5_TRIS=TRIS_INPUT; //10 CENT
 
-    pulse_filter_init(&filter, COUNT_LOW_PULSE, 1);
+    pulse_filter_init(&filter, COUNT_LOW_PULSE, 0x1F);
 }
 
 void gettoniera_reset_count(gett_t i) {
