@@ -123,6 +123,7 @@
           <itemPath>main/controller/alarms.h</itemPath>
           <itemPath>main/controller/ventilazione.h</itemPath>
           <itemPath>main/controller/riscaldamento.h</itemPath>
+          <itemPath>main/controller/busy_signal.h</itemPath>
         </logicalFolder>
         <logicalFolder name="model" displayName="model" projectFiles="true">
           <itemPath>main/model/model.h</itemPath>
@@ -238,6 +239,7 @@
           <itemPath>main/controller/alarms.c</itemPath>
           <itemPath>main/controller/ventilazione.c</itemPath>
           <itemPath>main/controller/riscaldamento.c</itemPath>
+          <itemPath>main/controller/busy_signal.c</itemPath>
         </logicalFolder>
         <logicalFolder name="model" displayName="model" projectFiles="true">
           <itemPath>main/model/model.c</itemPath>
@@ -284,7 +286,7 @@
         <targetDevice>PIC24FJ256GA705</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.36</languageToolchainVersion>
         <platform>2</platform>
@@ -522,6 +524,9 @@
         <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
       </ICD3PlatformTool>
+      <PICkit3PlatformTool>
+        <property key="firmware.download.all" value="false"/>
+      </PICkit3PlatformTool>
       <Simulator>
         <property key="codecoverage.enabled" value="Disable"/>
         <property key="codecoverage.enableoutputtofile" value="false"/>

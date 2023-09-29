@@ -156,15 +156,23 @@ int controller_holding_register_writable(holding_register_t reg) {
         case HOLDING_REGISTER_UMIDITA:
         case HOLDING_REGISTER_NUMERO_CICLI:
         case HOLDING_REGISTER_TEMPO_RITARDO:
-        case HOLDING_REGISTER_FLAG_CONFIGURAZIONE:
+        case HOLDING_REGISTER_FLAG_CONFIGURAZIONE_STEP:
         case HOLDING_REGISTER_TIPO_SONDA_TEMPERATURA:
         case HOLDING_REGISTER_TEMPERATURA_SICUREZZA:
         case HOLDING_REGISTER_TEMPO_ALLARME_TEMPERATURA:
-        case HOLDING_REGISTER_ABILITA_ALLARME_INVERTER:
-        case HOLDING_REGISTER_ABILITA_ALLARME_FILTRO:
         case HOLDING_REGISTER_NUMERO_PROGRAMMA:
         case HOLDING_REGISTER_NUMERO_STEP:
-        case HOLDING_REGISTER_INVERTI_MACCHINA_OCCUPATA:
+        case HOLDING_REGISTER_TIPO_MACCHINA_OCCUPATA:
+        case HOLDING_REGISTER_TIPO_RISCALDAMENTO:
+        case HOLDING_REGISTER_ISTERESI_TEMPERATURA_ON_RES2:
+        case HOLDING_REGISTER_ISTERESI_TEMPERATURA_OFF_RES1:
+        case HOLDING_REGISTER_TEMPERATURA_AVVIO_VAPORIZZAZIONE:
+        case HOLDING_REGISTER_DURATA_VAPORIZZAZIONE:
+        case HOLDING_REGISTER_ATTESA_DEODORIZZAZIONE:
+        case HOLDING_REGISTER_TEMPO_DEODORIZZAZIONE:
+        case HOLDING_REGISTER_FLAG_CONFIGURAZIONE:
+        case HOLDING_REGISTER_TEMPO_ATTESA_PARTENZA_CICLO:
+        case HOLDING_REGISTER_TEMPO_RIMANENTE:
             return 1;
 
         default:
@@ -174,67 +182,82 @@ int controller_holding_register_writable(holding_register_t reg) {
 
 
 void controller_write_holding_register(model_t *pmodel, holding_register_t reg, uint16_t value) {
+#define WRITE_FIELD(index, field)                          \
+    case index:                                             \
+        pmodel->field = value;                              \
+        break;
+    
     assert(pmodel != NULL);
     if (!controller_holding_register_writable(reg)) {
         return;
     }
 
     switch (reg) {
-        case HOLDING_REGISTER_TEMPO_MARCIA:
-            pmodel->tempo_marcia = value;
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_MARCIA, tempo_marcia);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_PAUSA, tempo_pausa);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_DURATA, tempo_durata);
+        WRITE_FIELD(HOLDING_REGISTER_VELOCITA, velocita);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPERATURA, temperatura);
+        WRITE_FIELD(HOLDING_REGISTER_UMIDITA, umidita);
+        WRITE_FIELD(HOLDING_REGISTER_FLAG_CONFIGURAZIONE_STEP, flag_asciugatura);
+        WRITE_FIELD(HOLDING_REGISTER_TIPO_SONDA_TEMPERATURA, tipo_sonda_temperatura);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_ATTESA_PARTENZA_CICLO, tempo_attesa_partenza_ciclo);
+        WRITE_FIELD(HOLDING_REGISTER_NUMERO_PROGRAMMA, pwoff.program_number);
+        WRITE_FIELD(HOLDING_REGISTER_NUMERO_STEP, pwoff.step_number);
+        WRITE_FIELD(HOLDING_REGISTER_TIPO_STEP, tipo_step);
+        WRITE_FIELD(HOLDING_REGISTER_TIPO_MACCHINA_OCCUPATA, tipo_macchina_occupata);
+        WRITE_FIELD(HOLDING_REGISTER_TIPO_RISCALDAMENTO, tipo_riscaldamento);
+        WRITE_FIELD(HOLDING_REGISTER_ISTERESI_TEMPERATURA_ON_RES2, isteresi_temperatura_on_res2);
+        WRITE_FIELD(HOLDING_REGISTER_ISTERESI_TEMPERATURA_OFF_RES1, isteresi_temperatura_off_res1);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPERATURA_AVVIO_VAPORIZZAZIONE, temperatura_vaporizzazione);
+        WRITE_FIELD(HOLDING_REGISTER_DURATA_VAPORIZZAZIONE, tempo_vaporizzazione);
+        WRITE_FIELD(HOLDING_REGISTER_ATTESA_DEODORIZZAZIONE, tempo_attesa_deodorizzazione);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_DEODORIZZAZIONE, tempo_deodorizzazione);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPO_ALLARME_TEMPERATURA, tempo_allarme_temperatura);
+        WRITE_FIELD(HOLDING_REGISTER_TEMPERATURA_SICUREZZA, temperatura_sicurezza);
+        
+        case HOLDING_REGISTER_TEMPO_RIMANENTE:
+            cycle_change_remaining_time(value);
             break;
-        case HOLDING_REGISTER_TEMPO_PAUSA:
-            pmodel->tempo_pausa = value;
-            break;
-        case HOLDING_REGISTER_TEMPO_DURATA:
-            pmodel->tempo_durata = value;
-            break;
-        case HOLDING_REGISTER_VELOCITA:
-            pmodel->velocita = value;
-            break;
-        case HOLDING_REGISTER_TEMPERATURA:
-            pmodel->temperatura = value;
-            break;
-        case HOLDING_REGISTER_UMIDITA:
-            pmodel->umidita = value;
-            break;
-        case HOLDING_REGISTER_FLAG_CONFIGURAZIONE:
-            pmodel->flag_asciugatura = value;
-            break;
+        
         case HOLDING_REGISTER_COMMAND:
             controller_handle_command(pmodel, value);
             break;
+            
         case HOLDING_REGISTER_PWM1:
             pwm_set(value, 1);
             break;
+            
         case HOLDING_REGISTER_PWM2:
             pwm_set(value, 2);
             break;
-        case HOLDING_REGISTER_TIPO_SONDA_TEMPERATURA:
-            pmodel->tipo_sonda_temperatura = value;
-            break;
-        case HOLDING_REGISTER_NUMERO_PROGRAMMA:
-            pmodel->pwoff.program_number = value;
-            break;
-        case HOLDING_REGISTER_NUMERO_STEP:
-            pmodel->pwoff.step_number = value;
-            break;
-        case HOLDING_REGISTER_TIPO_STEP:
-            pmodel->tipo_step = value;
-            break;
             
-        case HOLDING_REGISTER_INVERTI_MACCHINA_OCCUPATA:
-            pmodel->inverti_macchina_occupata = value;
-            cycle_refresh(pmodel);
+        case HOLDING_REGISTER_FLAG_CONFIGURAZIONE:
+            pmodel->ferma_tempo_in_pausa = (value & 0x01) > 0;
+            pmodel->inverti_macchina_occupata = (value & 0x02) > 0;
+            pmodel->disabilita_allarmi = (value & 0x04) > 0;
+            pmodel->abilita_allarme_inverter = (value & 0x08) > 0;
+            pmodel->abilita_allarme_filtro = (value & 0x10) > 0;
             break;
-
+        
         default:
             break;
+ 
     }
+    
+#undef WRITE_FIELD
 }
 
 
 uint16_t controller_read_holding_register(model_t *pmodel, holding_register_t reg) {
+#define READ_REG_HI(code, field)\
+    case code:                                                                  \
+        return (uint16_t)((pmodel->field >> 16) & 0xFFFF);                      
+        
+#define READ_REG_LO(code, field)\
+    case code:                                                                  \
+        return (uint16_t)((pmodel->field) & 0xFFFF);                            
+    
     assert(pmodel != NULL);
     if (!controller_holding_register_readable(reg)) {
         return 0;
@@ -257,9 +280,32 @@ uint16_t controller_read_holding_register(model_t *pmodel, holding_register_t re
             return SOFTWARE_VERSION_LOW;
         case HOLDING_REGISTER_BUILD_DATE:
             return SOFTWARE_BUILD_DATE;
+        case HOLDING_REGISTER_NUMERO_PROGRAMMA:
+            return pmodel->pwoff.program_number;
+        case HOLDING_REGISTER_NUMERO_STEP:
+            return pmodel->pwoff.step_number;
+        case HOLDING_REGISTER_CICLI_TOTALI:
+            return pmodel->pwoff.complete_cycles;
+        case HOLDING_REGISTER_CICLI_PARZIALI:
+            return pmodel->pwoff.partial_cycles;
+            
+        READ_REG_HI(HOLDING_REGISTER_TEMPO_ATTIVITA_HI, pwoff.active_time);
+        READ_REG_LO(HOLDING_REGISTER_TEMPO_ATTIVITA_LO, pwoff.active_time);
+        READ_REG_HI(HOLDING_REGISTER_TEMPO_LAVORO_HI, pwoff.work_time);
+        READ_REG_LO(HOLDING_REGISTER_TEMPO_LAVORO_LO, pwoff.work_time);
+        READ_REG_HI(HOLDING_REGISTER_TEMPO_MOTO_HI, pwoff.rotation_time);
+        READ_REG_LO(HOLDING_REGISTER_TEMPO_MOTO_LO, pwoff.rotation_time);
+        READ_REG_HI(HOLDING_REGISTER_TEMPO_VENTILAZIONE_HI, pwoff.ventilation_time);
+        READ_REG_LO(HOLDING_REGISTER_TEMPO_VENTILAZIONE_LO, pwoff.ventilation_time);
+        READ_REG_HI(HOLDING_REGISTER_TEMPO_RISCALDAMENTO_HI, pwoff.heating_time);
+        READ_REG_LO(HOLDING_REGISTER_TEMPO_RISCALDAMENTO_LO, pwoff.heating_time);
+
         default:
             return 0;
     }
+    
+#undef READ_REG_HI
+#undef READ_REG_LO
 }
 
 
@@ -270,11 +316,21 @@ void controller_handle_command(model_t *pmodel, uint16_t command) {
             break;
 
         case COMMAND_REGISTER_STOP:
-            cycle_send_event(pmodel, CYCLE_EVENT_CODE_STOP);
+            if (cycle_send_event(pmodel, CYCLE_EVENT_CODE_STOP)) {
+                model_add_partial_cycle(pmodel);
+                controller_update_pwoff(pmodel);
+            }
             break;
             
         case COMMAND_REGISTER_PAUSE:
             cycle_send_event(pmodel, CYCLE_EVENT_CODE_PAUSE);
+            break;
+            
+        case COMMAND_REGISTER_DONE:
+            if (cycle_send_event(pmodel, CYCLE_EVENT_CODE_STOP)) {
+                model_add_complete_cycle(pmodel);
+                controller_update_pwoff(pmodel);
+            }
             break;
             
         case COMMAND_REGISTER_CLEAR_ALARMS:
@@ -297,10 +353,12 @@ void controller_handle_command(model_t *pmodel, uint16_t command) {
             break;
             
         case COMMAND_REGISTER_INITIALIZE:
-            pmodel->initialized = 1;
+            pmodel->run.inizializzato = 1;
             break;
 
         default:
             break;
     }
+    
+    controller_update_pwoff(pmodel);
 }

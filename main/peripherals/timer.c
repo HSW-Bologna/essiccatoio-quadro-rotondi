@@ -15,6 +15,7 @@
 
 
 static unsigned long millis      = 0;
+static uint8_t       second_flag = 0;
 
 
 unsigned long get_millis(void) {
@@ -38,8 +39,20 @@ void timer_init(void) {
 }
 
 
+int timer_second_passed(void) {
+    int res = 0;
+    IEC0bits.T1IE = 0;
+    res           = second_flag;
+    second_flag   = 0;
+    IEC0bits.T1IE = 1;
+    return res;
+}
+
 
 void __attribute__((interrupt, auto_psv)) _T1Interrupt(void) {
     millis++;
+    if ((millis % 1000) == 0) {
+        second_flag = 1;
+    }
     IFS0bits.T1IF = 0;
 }

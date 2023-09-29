@@ -57,7 +57,6 @@ int digin_take_reading(void) {
     
     uint8_t value = 0;
     mcp23008_get_gpio_register(input_driver, &value);
-    value = ~value;
     input |= value << 4;
     
     return debounce_filter(&filter, input, 5);

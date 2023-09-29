@@ -28,12 +28,13 @@ enum {
     REG_GETT4,
     REG_GETT5,
     REG_CASSA,
-    REG_TEMPERATURE,
-    REG_HUMIDITY,
+    REG_SHT_TEMPERATURE,
+    REG_SHT_HUMIDITY,
     REG_ADC_TEMPERATURE0,
     REG_ADC_TEMPERATURE1,
     REG_DEGREES_TEMPERATURE0,
     REG_DEGREES_TEMPERATURE1,
+    REG_CONFIGURED_TEMPERATURE,
     NUM_INPUT_REGISTERS
 };
 
@@ -162,11 +163,11 @@ ModbusError myRegisterCallback(const ModbusSlave *status, const ModbusRegisterCa
                             result->value = pmodel->pwoff.coins[args->index - REG_GETT1];
                             break;
                             
-                        case REG_HUMIDITY:
+                        case REG_SHT_HUMIDITY:
                             result->value = (uint16_t)pmodel->umidita_sht;
                             break;
                         
-                        case REG_TEMPERATURE:
+                        case REG_SHT_TEMPERATURE:
                             result->value = (uint16_t)pmodel->temperatura_sht;
                             break;
 
@@ -184,6 +185,10 @@ ModbusError myRegisterCallback(const ModbusSlave *status, const ModbusRegisterCa
 
                         case REG_DEGREES_TEMPERATURE1:
                             result->value = (uint16_t)pmodel->temperatura_ptc2;
+                            break;
+                            
+                        case REG_CONFIGURED_TEMPERATURE:
+                            result->value = (uint16_t)model_get_temperature(pmodel);
                             break;
 
                         default:

@@ -15,11 +15,7 @@
 
 void model_init(model_t *pmodel) {
     assert(pmodel != NULL);
-    memset(pmodel->pwoff.coins, 0, sizeof(pmodel->pwoff.coins));
-    pmodel->tempo_marcia = 4;
-    pmodel->tempo_pausa = 2;
-    pmodel->initialized = 0;
-    pmodel->inverti_macchina_occupata = 0;
+    memset(pmodel, 0, sizeof(model_t));
 }
 
 
@@ -30,6 +26,13 @@ size_t model_pwoff_serialize(model_t *pmodel, uint8_t *buff) {
     for (j = 0; j < COIN_LINES; j++) {
         i += serialize_uint16_be(&buff[i], pmodel->pwoff.coins[j]);
     }
+    i += serialize_uint16_be(&buff[i], pmodel->pwoff.complete_cycles);
+    i += serialize_uint16_be(&buff[i], pmodel->pwoff.partial_cycles);
+    i += serialize_uint32_be(&buff[i], pmodel->pwoff.active_time);
+    i += serialize_uint32_be(&buff[i], pmodel->pwoff.work_time);
+    i += serialize_uint32_be(&buff[i], pmodel->pwoff.rotation_time);
+    i += serialize_uint32_be(&buff[i], pmodel->pwoff.ventilation_time);
+    i += serialize_uint32_be(&buff[i], pmodel->pwoff.heating_time);
     i += serialize_uint16_be(&buff[i], pmodel->pwoff.remaining_time);
     i += serialize_uint16_be(&buff[i], pmodel->pwoff.program_number);
     i += serialize_uint16_be(&buff[i], pmodel->pwoff.step_number);
@@ -54,6 +57,13 @@ size_t model_pwoff_deserialize(model_t *pmodel, uint8_t *buff) {
         for(j = 0; j < COIN_LINES; j++) {
             i += deserialize_uint16_be(&pmodel->pwoff.coins[j], &buff[i]);
         }
+        i += deserialize_uint16_be(&pmodel->pwoff.complete_cycles, &buff[i]);
+        i += deserialize_uint16_be(&pmodel->pwoff.partial_cycles, &buff[i]);
+        i += deserialize_uint32_be(&pmodel->pwoff.active_time, &buff[i]);
+        i += deserialize_uint32_be(&pmodel->pwoff.work_time, &buff[i]);
+        i += deserialize_uint32_be(&pmodel->pwoff.rotation_time, &buff[i]);
+        i += deserialize_uint32_be(&pmodel->pwoff.ventilation_time, &buff[i]);
+        i += deserialize_uint32_be(&pmodel->pwoff.heating_time, &buff[i]);
         i += deserialize_uint16_be(&pmodel->pwoff.remaining_time, &buff[i]);
         i += deserialize_uint16_be(&pmodel->pwoff.program_number, &buff[i]);
         i += deserialize_uint16_be(&pmodel->pwoff.step_number, &buff[i]);
@@ -62,6 +72,18 @@ size_t model_pwoff_deserialize(model_t *pmodel, uint8_t *buff) {
 
     assert(i == PWOFF_SERIALIZED_SIZE);
     return i;
+}
+
+
+int model_is_porthole_open(model_t *pmodel) {
+    assert(pmodel != NULL);
+    return (pmodel->allarmi & (1 << ALARM_CODE_OBLO_APERTO)) > 0;
+}
+
+
+int model_is_alarm_other_than_porthole_active(model_t *pmodel) {
+    assert(pmodel != NULL);
+    return (pmodel->allarmi & (~(1 << ALARM_CODE_OBLO_APERTO))) > 0;
 }
 
 
@@ -144,7 +166,20 @@ int model_ciclo_fermo(model_t *pmodel) {
 
 int model_get_temperature(model_t *pmodel) {
     assert(pmodel != NULL);
-    return pmodel->temperatura_ptc1;
+    switch (pmodel->tipo_sonda_temperatura) {
+        case SONDA_TEMPERATURA_PTC_1:
+            return pmodel->temperatura_ptc1;
+            
+        case SONDA_TEMPERATURA_PTC_2:
+            return pmodel->temperatura_ptc2;
+            
+        case SONDA_TEMPERATURA_SHT:
+            // The SHT probe reads temperature with 0.01 precision; we cut it out to the whole degree
+            return pmodel->temperatura_sht/100;
+            
+        default:
+            return 0;
+    }
 }
 
 
@@ -156,5 +191,75 @@ void model_cycle_active(model_t *pmodel, int active) {
 
 uint16_t model_get_function_flags(model_t *pmodel, int test) {
     assert(pmodel != NULL);
-    return ((pmodel->initialized > 0) << 0) | ((test > 0) << 1);
+    return ((pmodel->run.inizializzato > 0) << 0) | ((test > 0) << 1);
+}
+
+
+int model_vaporizzazione_da_attivare(model_t *pmodel) {
+    assert(pmodel != NULL);
+    return pmodel->tempo_vaporizzazione > 0 && pmodel->temperatura_vaporizzazione > 0 && !pmodel->run.vaporizzazione_attivata;
+}
+
+
+void model_vaporizzazione_attivata(model_t *pmodel) {
+    assert(pmodel != NULL);
+    pmodel->run.vaporizzazione_attivata = 1;
+}
+
+
+void model_comincia_step(model_t *pmodel) {
+    assert(pmodel != NULL);
+    pmodel->run.vaporizzazione_attivata = 0;
+}
+
+
+void model_add_second(model_t *pmodel) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.active_time++;
+}
+
+
+void model_add_work_time_ms(model_t *pmodel, unsigned long ms) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.work_time += ms/1000UL;
+}
+
+
+void model_add_rotation_time_ms(model_t *pmodel, unsigned long ms) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.rotation_time += ms/1000UL;
+}
+
+
+void model_add_ventilation_time_ms(model_t *pmodel, unsigned long ms) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.ventilation_time += ms/1000UL;
+}
+
+
+void model_add_heating_time_ms(model_t *pmodel, unsigned long ms) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.heating_time += ms/1000UL;
+}
+
+
+int model_over_safety_temperature(model_t *pmodel) {
+    assert(pmodel != NULL);
+    if (!pmodel->run.inizializzato) {
+        return 0;
+    } else {
+        return model_get_temperature(pmodel) > pmodel->temperatura_sicurezza;
+    }
+}
+
+
+void model_add_complete_cycle(model_t *pmodel) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.complete_cycles++;
+}
+
+
+void model_add_partial_cycle(model_t *pmodel) {
+    assert(pmodel != NULL);
+    pmodel->pwoff.partial_cycles++;
 }

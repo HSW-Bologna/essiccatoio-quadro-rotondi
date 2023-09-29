@@ -7,9 +7,11 @@
 
 #define DIGIN_VENTOLA       DIGIN_IN2
 #define DIGIN_PAGAMENTO     DIGIN_IN3
-#define DIGIN_OBLO          DIGIN_IN8
+#define DIGIN_OBLO          DIGIN_IN10
 #define DIGIN_EMERGENZA     DIGIN_IN9
 #define DIGIN_TERMICA       DIGIN_IN7
+#define DIGIN_FILTRO        DIGIN_IN7
+#define DIGIN_NO_ARIA       DIGIN_IN4
 
 
 typedef enum {

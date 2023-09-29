@@ -13,6 +13,7 @@
 #include "controller/controller.h"
 #include "controller/modbus_server.h"
 #include "controller/riscaldamento.h"
+#include "controller/busy_signal.h"
 #include "gettoniera.h"
 #include "i2c_ports/PIC/i2c_bitbang.h"
 #include "spi.h"
@@ -57,7 +58,12 @@ int main(void) {
     for(;;) {
         ClrWdt();
         modbus_server_manage(&model);  
-        riscaldamento_manage(&model, cycle_in_test());
+        riscaldamento_manage_callbacks(&model);
+        
+        if (timer_second_passed()) {
+            model_add_second(&model);
+            controller_update_pwoff(&model);
+        }
  
         if (is_expired(heartbit_ts, get_millis(), 1000UL)) {
             LED_RUN_LAT = !LED_RUN_LAT;
@@ -73,16 +79,25 @@ int main(void) {
             modbus_exp_read_input_status(SLAVE_DEFAULT_ADDRESS);
             ptc_take_reading();
             
-            ptc_get_value(&model.adc_ptc1, &model.adc_ptc2);
-            ptc_get_temperature(&model.temperatura_ptc1, &model.temperatura_ptc2);
-            sht3_read(&model.temperatura_sht, &model.umidita_sht);
+            if (model.tipo_sonda_temperatura == SONDA_TEMPERATURA_PTC_1 || model.tipo_sonda_temperatura == SONDA_TEMPERATURA_PTC_2 || cycle_in_test()) {
+                ptc_get_value(&model.adc_ptc1, &model.adc_ptc2);
+                ptc_get_temperature(&model.temperatura_ptc1, &model.temperatura_ptc2);
+            }
+            if (model.tipo_sonda_temperatura == SONDA_TEMPERATURA_SHT || cycle_in_test()) {
+                sht3_read(&model.temperatura_sht, &model.umidita_sht);
+            }
             
             t500=get_millis();
         } if (is_expired(cycle_ts, get_millis(), 100UL)) {
-            cycle_manage_callbacks(&model);
+            if (cycle_manage_callbacks(&model)) {
+                controller_update_pwoff(&model);
+            }
+            
             digout_period_check();
             led_period_check();
             modbus_exp_period_check();
+            busy_signal_manage(&model);
+            
             cycle_ts = get_millis();
         }   
         

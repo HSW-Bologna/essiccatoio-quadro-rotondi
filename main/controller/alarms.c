@@ -11,12 +11,25 @@ uint16_t check_alarms(model_t *pmodel) {
     
     uint16_t res = 0;
     
+    if (pmodel->disabilita_allarmi) {
+        model_clear_alarms_warnings(pmodel);
+        return res;
+    }
+    
     if (digin_get(DIGIN_EMERGENZA)) {
         SET_ALARM(res, pmodel, ALARM_CODE_EMERGENZA);
     }
     
     if (digin_get(DIGIN_OBLO)) {
         SET_ALARM(res, pmodel, ALARM_CODE_OBLO_APERTO);
+    }
+    
+    if (model_over_safety_temperature(pmodel)) {
+        SET_ALARM(res, pmodel, ALARM_CODE_TEMPERATURA);
+    }
+    
+    if (riscaldamento_timeout(pmodel)) {
+        SET_ALARM(res, pmodel, ALARM_CODE_RISCALDAMENTO);
     }
     
     if (!ventilazione_ok()) {
