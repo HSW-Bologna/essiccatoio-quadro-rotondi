@@ -14,7 +14,7 @@
 void pwm_init(void) {
     PWM_1_0_10_TRIS = TRIS_OUTPUT; 
     PWM_2_0_10_TRIS = TRIS_OUTPUT; 
-
+    
     // Set MCCP operating mode
     CCP1CON1Lbits.CCSEL = 0;         // Set MCCP operating mode (OC mode)
     CCP1CON1Lbits.MOD = 0b0101;      // Set mode (Buffered Dual-Compare/PWM mode)

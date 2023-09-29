@@ -3,6 +3,7 @@
 #include "ventilazione.h"
 #include "peripherals/timer.h"
 #include "gel/timer/timecheck.h"
+#include "peripherals/pwm.h"
 
 
 static unsigned long timestamp = 0;
@@ -12,7 +13,7 @@ void ventilazione_on_full(void) {
     if (!digout_get(DIGOUT_VENTILAZIONE)) {
         timestamp = get_millis();
     }
-    
+    pwm_set(30, 2);
     digout_update(DIGOUT_VENTILAZIONE, 1);
 }
 

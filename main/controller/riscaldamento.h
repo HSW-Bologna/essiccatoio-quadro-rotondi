@@ -18,7 +18,7 @@ void riscaldamento_set_setpoint(model_t *pmodel, int t);
 int  riscaldamento_ok(void);
 
 void riscaldamento_manage_callbacks(model_t *pmodel);
-void riscaldamento_on(model_t *pmodel);
+void riscaldamento_on(model_t *pmodel, int setpoint);
 void riscaldamento_off(model_t *pmodel);
 int riscaldamento_timeout(model_t *pmodel);
 

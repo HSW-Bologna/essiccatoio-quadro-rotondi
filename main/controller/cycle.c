@@ -180,13 +180,13 @@ static int running_event_manager(model_t *pmodel, cycle_event_code_t event) {
             break;
 
         case CYCLE_EVENT_CODE_FORWARD:
-            cesto_marcia_set_orario();
+            cesto_marcia_set_orario(pmodel->velocita);
             ventilazione_on_full();
             QEVENT(pmodel->tempo_marcia, gel_timer_callback, (void*)CYCLE_EVENT_CODE_MOTION_PAUSE);
             break;
 
         case CYCLE_EVENT_CODE_BACKWARD:
-            cesto_marcia_set_antiorario();
+            cesto_marcia_set_antiorario(pmodel->velocita);
             ventilazione_on_full();
             QEVENT(pmodel->tempo_marcia, gel_timer_callback, (void*)CYCLE_EVENT_CODE_MOTION_PAUSE);
             break;
@@ -327,14 +327,13 @@ static void stop_everything(model_t *pmodel) {
 
 static void start_everything(model_t *pmodel) {
     if (model_heating_enabled(pmodel)) {
-        riscaldamento_on(pmodel);
-        riscaldamento_set_setpoint(pmodel, pmodel->temperatura);
+        riscaldamento_on(pmodel,pmodel->temperatura);
     } else {
         riscaldamento_off(pmodel);
     }
 
     if (!model_ciclo_fermo(pmodel)) {
-        cesto_marcia_set_orario();
+        cesto_marcia_set_orario(pmodel->velocita);
         ventilazione_on_full();
     } 
     

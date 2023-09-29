@@ -16,7 +16,7 @@ uint16_t check_alarms(model_t *pmodel) {
         return res;
     }
     
-    if (digin_get(DIGIN_EMERGENZA)) {
+    if (digin_get(DIGIN_EMERGENZA) == 0) {
         SET_ALARM(res, pmodel, ALARM_CODE_EMERGENZA);
     }
     

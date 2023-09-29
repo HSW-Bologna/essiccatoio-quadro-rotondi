@@ -16,17 +16,19 @@ static void set_timestamp(void);
 static unsigned long timestamp = 0;
 
 
-void cesto_marcia_set_orario(void) {
+void cesto_marcia_set_orario(uint8_t speed) {
     set_timestamp();
     digout_update(DIGOUT_CESTO_AVANTI,1);
     digout_update(DIGOUT_CESTO_INDIETRO,0);
+    pwm_set(speed,1);
 }
 
 
-void cesto_marcia_set_antiorario(void) {
+void cesto_marcia_set_antiorario(uint8_t speed) {
     set_timestamp();
     digout_update(DIGOUT_CESTO_INDIETRO,1);
     digout_update(DIGOUT_CESTO_AVANTI,0);
+    pwm_set(speed,1);
 }
 
 

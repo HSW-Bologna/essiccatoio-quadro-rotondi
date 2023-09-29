@@ -36,11 +36,11 @@ void digin_init(void) {
 
 int digin_get(digin_t digin) {
     switch(digin) {
-        case DIGIN_IN0...DIGIN_IN11:
+        case DIGIN_0...DIGIN_11:
             return debounce_read(&filter, digin);
             
-        case DIGIN_IN12...DIGIN_IN23:
-            return GETBIT(status, digin - DIGIN_IN12);
+        case DIGIN_12...DIGIN_23:
+            return GETBIT(status, digin - DIGIN_12);
         
         default:
             return 0;
@@ -57,7 +57,7 @@ int digin_take_reading(void) {
     
     uint8_t value = 0;
     mcp23008_get_gpio_register(input_driver, &value);
-    input |= value << 4;
+    input |= ((~value) & 0xFF) << 4;
     
     return debounce_filter(&filter, input, 5);
 }
@@ -83,5 +83,5 @@ void digin_exp_take_reading(uint16_t buffer) {
 }
 
 unsigned int digin_get_inputs(void) {
-    return debounce_value(&filter) | status<<4;
+    return debounce_value(&filter) | status<<12;
 }

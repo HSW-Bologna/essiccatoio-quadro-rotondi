@@ -104,8 +104,8 @@ ModbusError myRegisterCallback(const ModbusSlave *status, const ModbusRegisterCa
     };
 
     digin_t din2digin[NUM_DISCRETE_INPUTS] = {
-        DIGIN_IN0, DIGIN_IN1, DIGIN_IN2,  DIGIN_IN3,  DIGIN_IN4,  DIGIN_IN5,  DIGIN_IN6,  DIGIN_IN7,
-        DIGIN_IN8, DIGIN_IN9, DIGIN_IN10, DIGIN_IN11, DIGIN_IN12, DIGIN_IN13, DIGIN_IN14, DIGIN_IN15,
+        DIGIN_0, DIGIN_1, DIGIN_2,  DIGIN_3,  DIGIN_4,  DIGIN_5,  DIGIN_6,  DIGIN_7,
+        DIGIN_8, DIGIN_9, DIGIN_10, DIGIN_11, DIGIN_12, DIGIN_13, DIGIN_14, DIGIN_15,
     };
 
     model_t *pmodel = modbusSlaveGetUserPointer(status);
