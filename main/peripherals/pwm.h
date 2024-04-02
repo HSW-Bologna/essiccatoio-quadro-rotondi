@@ -3,7 +3,15 @@
 
 #include <stdint.h>
 
+
+
+typedef enum {
+    PWM_CHANNEL_ROTATION = 0,
+    PWM_CHANNEL_VENTILATION,
+} pwm_channel_t ;
+
+
 void pwm_init(void);
-void pwm_set(uint8_t perc, int i);
+void pwm_set(pwm_channel_t channel, uint8_t perc);
 
 #endif

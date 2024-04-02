@@ -20,6 +20,7 @@ typedef enum {
     CYCLE_EVENT_CODE_ALARM,
     CYCLE_EVENT_CODE_ENTER_TEST,
     CYCLE_EVENT_CODE_EXIT_TEST,
+    CYCLE_EVENT_CODE_REFRESH,
 } cycle_event_code_t;
 
 

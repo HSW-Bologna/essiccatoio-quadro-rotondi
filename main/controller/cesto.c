@@ -7,6 +7,7 @@
 
 #include "digout.h"
 #include "peripherals/timer.h"
+#include "peripherals/pwm.h"
 #include "gel/timer/timecheck.h"
 
 
@@ -20,7 +21,7 @@ void cesto_marcia_set_orario(uint8_t speed) {
     set_timestamp();
     digout_update(DIGOUT_CESTO_AVANTI,1);
     digout_update(DIGOUT_CESTO_INDIETRO,0);
-    pwm_set(speed,1);
+    pwm_set(PWM_CHANNEL_ROTATION, speed);
 }
 
 
@@ -28,7 +29,12 @@ void cesto_marcia_set_antiorario(uint8_t speed) {
     set_timestamp();
     digout_update(DIGOUT_CESTO_INDIETRO,1);
     digout_update(DIGOUT_CESTO_AVANTI,0);
-    pwm_set(speed,1);
+    pwm_set(PWM_CHANNEL_ROTATION, speed);
+}
+
+
+void cesto_marcia_set_speed(uint8_t speed) {
+    pwm_set(PWM_CHANNEL_ROTATION, speed);
 }
 
 

@@ -13,7 +13,7 @@ void ventilazione_on_full(void) {
     if (!digout_get(DIGOUT_VENTILAZIONE)) {
         timestamp = get_millis();
     }
-    pwm_set(30, 2);
+    pwm_set(PWM_CHANNEL_VENTILATION, 30);
     digout_update(DIGOUT_VENTILAZIONE, 1);
 }
 

@@ -129,6 +129,7 @@ uint16_t model_get_function_flags(model_t *pmodel, int test);
 void model_cycle_active(model_t *pmodel, int active);
 int model_is_alarm_other_than_porthole_active(model_t *pmodel);
 int model_is_porthole_open(model_t *pmodel);
+int model_get_setpoint(model_t *pmodel) ;
 
 void model_vaporizzazione_attivata(model_t *pmodel);
 int model_vaporizzazione_da_attivare(model_t *pmodel);

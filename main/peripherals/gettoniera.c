@@ -12,6 +12,8 @@
 static pulse_filter_t filter;
 
 void gettoniera_init(void) {
+    pulse_filter_init(&filter, COUNT_LOW_PULSE, 0x1F);
+    
     ABI_GETT_TRIS=TRIS_OUTPUT;
     ABI_GETT_LAT=1;
     GETT1_TRIS=TRIS_INPUT; //2 EURO
@@ -20,7 +22,6 @@ void gettoniera_init(void) {
     GETT4_TRIS=TRIS_INPUT; //50 CENT
     GETT5_TRIS=TRIS_INPUT; //10 CENT
 
-    pulse_filter_init(&filter, COUNT_LOW_PULSE, 0x1F);
 }
 
 void gettoniera_reset_count(gett_t i) {
@@ -36,7 +37,8 @@ void gettoniera_reset_all_count(void) {
 }
 
 
-int gettoniera_take_insert(void) {   
+int gettoniera_take_insert(void) {  
+    return 0;
     unsigned int input=0;
     input|=GETT1_PORT;
     input|=GETT2_PORT<<1;

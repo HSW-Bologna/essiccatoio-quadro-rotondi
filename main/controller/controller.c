@@ -15,6 +15,7 @@
 #include "gel/wearleveling/wearleveling.h"
 #include "cycle.h"
 #include "app_conf.h"
+#include "riscaldamento.h"
 
 
 #define CHECK_BYTE                   0xAA
@@ -196,8 +197,6 @@ void controller_write_holding_register(model_t *pmodel, holding_register_t reg, 
         WRITE_FIELD(HOLDING_REGISTER_TEMPO_MARCIA, tempo_marcia);
         WRITE_FIELD(HOLDING_REGISTER_TEMPO_PAUSA, tempo_pausa);
         WRITE_FIELD(HOLDING_REGISTER_TEMPO_DURATA, tempo_durata);
-        WRITE_FIELD(HOLDING_REGISTER_VELOCITA, velocita);
-        WRITE_FIELD(HOLDING_REGISTER_TEMPERATURA, temperatura);
         WRITE_FIELD(HOLDING_REGISTER_UMIDITA, umidita);
         WRITE_FIELD(HOLDING_REGISTER_FLAG_CONFIGURAZIONE_STEP, flag_asciugatura);
         WRITE_FIELD(HOLDING_REGISTER_TIPO_SONDA_TEMPERATURA, tipo_sonda_temperatura);
@@ -216,6 +215,16 @@ void controller_write_holding_register(model_t *pmodel, holding_register_t reg, 
         WRITE_FIELD(HOLDING_REGISTER_TEMPO_ALLARME_TEMPERATURA, tempo_allarme_temperatura);
         WRITE_FIELD(HOLDING_REGISTER_TEMPERATURA_SICUREZZA, temperatura_sicurezza);
         
+        case HOLDING_REGISTER_VELOCITA:
+            pmodel->velocita = value;
+            cycle_send_event(pmodel, CYCLE_EVENT_CODE_REFRESH);
+            break;
+        
+        case HOLDING_REGISTER_TEMPERATURA:
+            pmodel->temperatura = value;
+            riscaldamento_refresh(pmodel);
+            break;
+        
         case HOLDING_REGISTER_TEMPO_RIMANENTE:
             cycle_change_remaining_time(value);
             break;
@@ -225,11 +234,11 @@ void controller_write_holding_register(model_t *pmodel, holding_register_t reg, 
             break;
             
         case HOLDING_REGISTER_PWM1:
-            pwm_set(value, 1);
+            pwm_set(PWM_CHANNEL_ROTATION, value);
             break;
             
         case HOLDING_REGISTER_PWM2:
-            pwm_set(value, 2);
+            pwm_set(PWM_CHANNEL_VENTILATION,value);
             break;
             
         case HOLDING_REGISTER_FLAG_CONFIGURAZIONE:

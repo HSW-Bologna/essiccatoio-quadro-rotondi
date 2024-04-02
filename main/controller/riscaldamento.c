@@ -36,7 +36,6 @@ static void steam_management(model_t *pmodel);
 static unsigned long timestamp = 0;
 static gel_timer_t check_timer;
 static gel_timer_t steam_timer;
-static int internal_setpoint = 0;
 
 
 static const riscaldamento_state_manager_t managers[] = {
@@ -52,8 +51,12 @@ static riscaldamento_state_machine_t state_machine = {
 };
 
 
-void riscaldamento_on(model_t *pmodel, int setpoint) {
-    internal_setpoint = setpoint;
+void riscaldamento_refresh(model_t *pmodel) {
+    riscaldamento_sm_send_event(&state_machine, pmodel, RISCALDAMENTO_EVENT_CODE_CHECK);
+}
+
+
+void riscaldamento_on(model_t *pmodel) {
     riscaldamento_sm_send_event(&state_machine, pmodel, RISCALDAMENTO_EVENT_CODE_ON);
 }
 
@@ -65,13 +68,6 @@ void riscaldamento_off(model_t *pmodel) {
 
 void riscaldamento_manage_callbacks(model_t *pmodel) {
     gel_timer_manage_callbacks(&check_timer, 1, get_millis(), pmodel);
-}
-
-
-
-void riscaldamento_set_setpoint(model_t *pmodel, int t) {
-    internal_setpoint = t;
-    riscaldamento_sm_send_event(&state_machine, pmodel, RISCALDAMENTO_EVENT_CODE_CHECK);
 }
 
 
@@ -94,7 +90,7 @@ static int off_event_manager(model_t *pmodel, riscaldamento_event_code_t event) 
             switch (pmodel->tipo_riscaldamento) {
                 case TIPO_RISCALDAMENTO_VAPORE:
                 case TIPO_RISCALDAMENTO_GAS:
-                    if (model_get_temperature(pmodel) > internal_setpoint) {
+                    if (model_get_temperature(pmodel) > model_get_setpoint(pmodel)) {
                         return RISCALDAMENTO_STATE_SETPOINT_REACHED;
                     } else {
                         DIGOUT_SET(DIGOUT_RISCALDAMENTO_1);
@@ -104,7 +100,7 @@ static int off_event_manager(model_t *pmodel, riscaldamento_event_code_t event) 
                     
                 case TIPO_RISCALDAMENTO_ELETTRICO:
                     DIGOUT_SET(DIGOUT_RISCALDAMENTO_1);
-                    if (model_get_temperature(pmodel) > internal_setpoint) {
+                    if (model_get_temperature(pmodel) > model_get_setpoint(pmodel)) {
                         return RISCALDAMENTO_STATE_SETPOINT_REACHED;
                     } else {
                         DIGOUT_SET(DIGOUT_RISCALDAMENTO_2);
@@ -128,7 +124,7 @@ static int on_event_manager(model_t *pmodel, riscaldamento_event_code_t event) {
         case RISCALDAMENTO_EVENT_CODE_CHECK:
             steam_management(pmodel);
             
-            if (model_get_temperature(pmodel) > internal_setpoint) {
+            if (model_get_temperature(pmodel) > model_get_setpoint(pmodel)) {
                 if (pmodel->tipo_riscaldamento == TIPO_RISCALDAMENTO_ELETTRICO) {
                     DIGOUT_CLEAR(DIGOUT_RISCALDAMENTO_2);
                     return RISCALDAMENTO_STATE_MIDWAY;
@@ -158,10 +154,10 @@ static int on_event_manager(model_t *pmodel, riscaldamento_event_code_t event) {
 static int midway_event_manager(model_t *pmodel, riscaldamento_event_code_t event) {
     switch (event){ 
         case RISCALDAMENTO_EVENT_CODE_CHECK:
-            if (model_get_temperature(pmodel) > internal_setpoint + pmodel->isteresi_temperatura_off_res1) {
+            if (model_get_temperature(pmodel) > model_get_setpoint(pmodel) + pmodel->isteresi_temperatura_off_res1) {
                 DIGOUT_CLEAR(DIGOUT_RISCALDAMENTO_1);
                 return RISCALDAMENTO_STATE_SETPOINT_REACHED;
-            } else if (model_get_temperature(pmodel) < internal_setpoint - pmodel->isteresi_temperatura_on_res2 ) {
+            } else if (model_get_temperature(pmodel) < model_get_setpoint(pmodel) - pmodel->isteresi_temperatura_on_res2 ) {
                 DIGOUT_SET(DIGOUT_RISCALDAMENTO_2);
                 return RISCALDAMENTO_STATE_ON;
             }
@@ -186,11 +182,12 @@ static int midway_event_manager(model_t *pmodel, riscaldamento_event_code_t even
 static int setpoint_reached_event_manager(model_t *pmodel, riscaldamento_event_code_t event) {
     switch (event){ 
         case RISCALDAMENTO_EVENT_CODE_CHECK: {
-            if (model_get_temperature(pmodel) < internal_setpoint) {
+            if (model_get_temperature(pmodel) < model_get_setpoint(pmodel)) {
                 DIGOUT_SET(DIGOUT_RISCALDAMENTO_1);
                 if (pmodel->tipo_riscaldamento == TIPO_RISCALDAMENTO_ELETTRICO) {
                     return RISCALDAMENTO_STATE_MIDWAY;
                 } else {
+                    timestamp = get_millis();
                     return RISCALDAMENTO_STATE_ON;
                 }
             }

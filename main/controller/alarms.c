@@ -20,7 +20,7 @@ uint16_t check_alarms(model_t *pmodel) {
         SET_ALARM(res, pmodel, ALARM_CODE_EMERGENZA);
     }
     
-    if (digin_get(DIGIN_OBLO)) {
+    if (digin_get(DIGIN_OBLO) == 0) {
         SET_ALARM(res, pmodel, ALARM_CODE_OBLO_APERTO);
     }
     

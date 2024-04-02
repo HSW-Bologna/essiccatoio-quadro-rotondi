@@ -71,8 +71,8 @@ void system_init(void) {
     #define  PPSLock                     __builtin_write_OSCCONL(OSCCON | 0x40)
 
     PPSUnLock;
-    RPOR8bits.RP17R = 16; //pwm out 2a
-    RPOR8bits.RP16R = 16; //pwm out 2a
+    RPOR8bits.RP17R = 16; //pwm out 3a
+    RPOR8bits.RP16R = 18; //pwm out 2a
     RPOR12bits.RP24R = 3; //uart1 tx
     RPINR18bits.U1RXR = 25; //uart1 rx
     RPOR4bits.RP9R = 5; //uart2 tx

@@ -164,6 +164,12 @@ int model_ciclo_fermo(model_t *pmodel) {
 }
 
 
+int model_get_setpoint(model_t *pmodel) {
+    assert(pmodel != NULL);
+    return pmodel->temperatura;
+}
+
+
 int model_get_temperature(model_t *pmodel) {
     assert(pmodel != NULL);
     switch (pmodel->tipo_sonda_temperatura) {

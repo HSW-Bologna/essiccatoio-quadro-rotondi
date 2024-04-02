@@ -155,7 +155,6 @@ static int running_event_manager(model_t *pmodel, cycle_event_code_t event) {
             return CYCLE_STATE_STOPPED;
             
         case CYCLE_EVENT_CODE_STEP_DONE:
-            stop_everything(pmodel);
             return CYCLE_STATE_ACTIVE;
             
         case CYCLE_EVENT_CODE_ALARM:
@@ -189,6 +188,10 @@ static int running_event_manager(model_t *pmodel, cycle_event_code_t event) {
             cesto_marcia_set_antiorario(pmodel->velocita);
             ventilazione_on_full();
             QEVENT(pmodel->tempo_marcia, gel_timer_callback, (void*)CYCLE_EVENT_CODE_MOTION_PAUSE);
+            break;
+            
+        case CYCLE_EVENT_CODE_REFRESH:
+            cesto_marcia_set_speed(pmodel->velocita);
             break;
 
         default:
@@ -327,7 +330,7 @@ static void stop_everything(model_t *pmodel) {
 
 static void start_everything(model_t *pmodel) {
     if (model_heating_enabled(pmodel)) {
-        riscaldamento_on(pmodel,pmodel->temperatura);
+        riscaldamento_on(pmodel);
     } else {
         riscaldamento_off(pmodel);
     }
@@ -335,7 +338,10 @@ static void start_everything(model_t *pmodel) {
     if (!model_ciclo_fermo(pmodel)) {
         cesto_marcia_set_orario(pmodel->velocita);
         ventilazione_on_full();
-    } 
+    } else {
+        unsigned long tempo_ventilazione = ventilazione_off();
+        model_add_ventilation_time_ms(pmodel, tempo_ventilazione);
+    }
     
     if (!model_ciclo_continuo(pmodel)) {
         QEVENT(pmodel->tempo_marcia, gel_timer_callback, (void*)CYCLE_EVENT_CODE_MOTION_PAUSE);
